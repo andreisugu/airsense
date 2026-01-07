@@ -21,9 +21,77 @@ AirSense is an intelligent web application designed to help you proactively mana
 * **Automated Notifications:** Opt-in to receive proactive pollen alerts via Email, Webhook, or Telegram before your day even starts.
 * **Secure & Private:** Full user authentication, profile management, and GDPR compliance to ensure your data is safe and you are in control.
 
-##  Getting Started
+## 🌐 GitHub Pages Static Version
 
-Follow these instructions to get a local copy of AirSense up and running for development and testing purposes.
+AirSense is now available as a **static web application** that can run entirely in your browser without any backend server! This version is perfect for quick deployment on GitHub Pages.
+
+### **Live Demo**
+
+Visit the live demo at: `https://YOUR_USERNAME.github.io/airsense/`
+
+### **Features of the Static Version**
+
+* ✅ Full weather and pollen forecasting
+* ✅ Interactive data visualization with Chart.js
+* ✅ City search with autocomplete
+* ✅ Client-side sentiment analysis (keyword-based)
+* ✅ Personalized allergy recommendations
+* ✅ Risk analysis and alert system
+* ✅ Bilingual support (English/Romanian)
+* ✅ Fully responsive design
+* ✅ **100% client-side - No data stored on servers**
+* ❌ No user authentication or history (requires backend)
+
+### **How to Deploy on GitHub Pages**
+
+1. **Fork or Clone this repository**
+
+2. **Enable GitHub Pages:**
+   - Go to your repository on GitHub
+   - Click on **Settings** → **Pages**
+   - Under **Source**, select **Deploy from a branch**
+   - Select branch: **main** (or your preferred branch)
+   - Select folder: **/ (root)**
+   - Click **Save**
+
+3. **Wait for deployment:**
+   - GitHub will automatically build and deploy your site
+   - This usually takes 1-2 minutes
+   - You'll see a green checkmark when it's ready
+
+4. **Access your site:**
+   - Your site will be available at: `https://YOUR_USERNAME.github.io/REPOSITORY_NAME/`
+   - For example: `https://andreisugu.github.io/airsense/`
+
+### **Testing Locally**
+
+To test the static version locally before deploying:
+
+```bash
+# Navigate to the repository
+cd airsense
+
+# Start a simple HTTP server
+python3 -m http.server 8080
+
+# Open your browser and visit
+# http://localhost:8080/index.html
+```
+
+Or use any other static file server like:
+```bash
+# Using Node.js http-server
+npx http-server -p 8080
+
+# Using PHP
+php -S localhost:8080
+```
+
+---
+
+##  Getting Started (Full Django Version)
+
+Follow these instructions to get the full Django version of AirSense running locally with all features including user authentication, history, and notifications.
 
 ### **Prerequisites**
 
@@ -100,7 +168,16 @@ python manage.py send_notifications
 
 ##  How It Works
 
-The application follows a simple yet powerful workflow to deliver its recommendations:
+### **Static Version (GitHub Pages)**
+
+1.  **User Input:** The user describes how they are feeling and selects the pollens they are allergic to.
+2.  **Data Collection:** The browser fetches the user's location via geolocation API, then retrieves 7-day weather and pollen forecasts directly from Open-Meteo APIs.
+3.  **Client-Side Analysis:**
+    * A **keyword-based sentiment analysis** determines if the user's feeling is 'POSITIVE' or 'NEGATIVE' by analyzing word patterns.
+    * Custom JavaScript logic combines this sentiment with pollen and weather data to calculate risk, generate recommendations, and assign an alert level.
+4.  **Response:** The analysis is displayed immediately in the browser. No data is stored anywhere.
+
+### **Full Django Version**
 
 1.  **User Input:** The user describes how they are feeling and selects the pollens they are allergic to.
 2.  **Data Collection:** The backend fetches the user's location, a 7-day weather forecast, and a 7-day pollen forecast from the Open-Meteo and Air-Quality APIs.
@@ -110,6 +187,17 @@ The application follows a simple yet powerful workflow to deliver its recommenda
 4.  **Response & Storage:** The analysis is sent to the user's browser. If logged in, the entire interaction is saved to their private history for future reference.
 
 ##  Technologies Used
+
+### **Static Version (GitHub Pages)**
+
+| Category   | Technology / Service                                                                                      |
+| ---------- | --------------------------------------------------------------------------------------------------------- |
+| **Frontend** | HTML5, CSS3, JavaScript, Chart.js                                                                         |
+| **AI / ML** | Client-side keyword-based sentiment analysis                                                              |
+| **APIs** | Open-Meteo (Weather & Air-Quality), BigDataCloud (Geolocation)                                           |
+| **Hosting** | GitHub Pages (static files only)                                                                          |
+
+### **Full Django Version**
 
 | Category   | Technology / Service                                                                                      |
 | ---------- | --------------------------------------------------------------------------------------------------------- |
