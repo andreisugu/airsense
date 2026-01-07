@@ -1,24 +1,29 @@
+// Determine base path for static files (works for both Django and GitHub Pages)
+const basePath = window.location.pathname.includes('index.html') || window.location.pathname === '/' 
+    ? 'core/static/core/icons/' 
+    : '/static/core/icons/';
+
 const weatherCodes = {
-    0: '<img src="/static/core/icons/clear_sky.png" class="weather-icon"> Clear sky',
-    1: '<img src="/static/core/icons/mainly_clear.png" class="weather-icon"> Mainly clear',
-    2: '<img src="/static/core/icons/partly_cloudy.png" class="weather-icon"> Partly cloudy',
-    3: '<img src="/static/core/icons/overcast.png" class="weather-icon"> Overcast',
-    45: '<img src="/static/core/icons/fog.png" class="weather-icon"> Fog',
-    48: '<img src="/static/core/icons/fog.png" class="weather-icon"> Depositing rime fog',
-    51: '<img src="/static/core/icons/drizzle.png" class="weather-icon"> Light drizzle',
-    53: '<img src="/static/core/icons/drizzle.png" class="weather-icon"> Moderate drizzle',
-    55: '<img src="/static/core/icons/drizzle.png" class="weather-icon"> Dense drizzle',
-    61: '<img src="/static/core/icons/rain.png" class="weather-icon"> Slight rain',
-    63: '<img src="/static/core/icons/rain.png" class="weather-icon"> Moderate rain',
-    65: '<img src="/static/core/icons/rain.png" class="weather-icon"> Heavy rain',
-    71: '<img src="/static/core/icons/snow.png" class="weather-icon"> Slight snow',
-    73: '<img src="/static/core/icons/snow.png" class="weather-icon"> Moderate snow',
-    75: '<img src="/static/core/icons/heavy_snow.png" class="weather-icon"> Heavy snow',
-    95: '<img src="/static/core/icons/thunderstorm.png" class="weather-icon"> Thunderstorm'
+    0: `<img src="${basePath}clear_sky.png" class="weather-icon"> Clear sky`,
+    1: `<img src="${basePath}mainly_clear.png" class="weather-icon"> Mainly clear`,
+    2: `<img src="${basePath}partly_cloudy.png" class="weather-icon"> Partly cloudy`,
+    3: `<img src="${basePath}overcast.png" class="weather-icon"> Overcast`,
+    45: `<img src="${basePath}fog.png" class="weather-icon"> Fog`,
+    48: `<img src="${basePath}fog.png" class="weather-icon"> Depositing rime fog`,
+    51: `<img src="${basePath}drizzle.png" class="weather-icon"> Light drizzle`,
+    53: `<img src="${basePath}drizzle.png" class="weather-icon"> Moderate drizzle`,
+    55: `<img src="${basePath}drizzle.png" class="weather-icon"> Dense drizzle`,
+    61: `<img src="${basePath}rain.png" class="weather-icon"> Slight rain`,
+    63: `<img src="${basePath}rain.png" class="weather-icon"> Moderate rain`,
+    65: `<img src="${basePath}rain.png" class="weather-icon"> Heavy rain`,
+    71: `<img src="${basePath}snow.png" class="weather-icon"> Slight snow`,
+    73: `<img src="${basePath}snow.png" class="weather-icon"> Moderate snow`,
+    75: `<img src="${basePath}heavy_snow.png" class="weather-icon"> Heavy snow`,
+    95: `<img src="${basePath}thunderstorm.png" class="weather-icon"> Thunderstorm`
 };
 
 function getWeatherDescription(code) {
-    const baseDescription = weatherCodes[code] || '<img src="/static/core/icons/overcast.png" class="weather-icon"> Unknown';
+    const baseDescription = weatherCodes[code] || `<img src="${basePath}overcast.png" class="weather-icon"> Unknown`;
     
     if (!window.translateText) return baseDescription;
     
@@ -385,7 +390,9 @@ function updatePollenChart(dayIndex, data = currentPollenData) {
 }
 
 function fetchPollenForDate(date, dayIndex = 0) {
-    const url = `/api/pollen/?date=${date}`;
+    const lat = window.currentLat || 44.3302;
+    const lon = window.currentLon || 23.7949;
+    const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&hourly=alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&start_date=${date}&end_date=${date}`;
     
     fetch(url)
         .then(response => response.json())
@@ -584,16 +591,7 @@ function searchCityWeather(cityName) {
         });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize global variables
-    if (typeof weatherData !== 'undefined') {
-        window.weatherData = weatherData;
-    }
-    if (typeof pollenData !== 'undefined') {
-        window.pollenData = pollenData;
-        currentPollenData = pollenData;
-    }
-    
+function initializeWeatherAndPollen() {
     // Initialize weather components
     if (window.weatherData && window.weatherData.current) {
         try {
@@ -623,6 +621,28 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.log('No pollen data available');
     }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize global variables
+    if (typeof weatherData !== 'undefined') {
+        window.weatherData = weatherData;
+    }
+    if (typeof pollenData !== 'undefined') {
+        window.pollenData = pollenData;
+        currentPollenData = pollenData;
+    }
+    
+    // Initialize components
+    initializeWeatherAndPollen();
+    
+    // Listen for custom event when data is ready (for static version)
+    document.addEventListener('weatherDataReady', function() {
+        if (window.currentPollenData) {
+            currentPollenData = window.currentPollenData;
+        }
+        initializeWeatherAndPollen();
+    });
     
     document.getElementById('searchCity').addEventListener('click', function() {
         const cityName = document.getElementById('cityInput').value.trim();
