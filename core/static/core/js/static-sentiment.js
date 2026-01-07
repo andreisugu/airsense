@@ -2,6 +2,9 @@
 (function() {
     'use strict';
     
+    // Default fallback location (Craiova, Romania)
+    const DEFAULT_LOCATION = { lat: 44.3302, lon: 23.7949 };
+    
     // Simple sentiment analysis using keyword matching
     function analyzeSentiment(text) {
         const lowerText = text.toLowerCase();
@@ -23,22 +26,24 @@
             'rau', 'groaznic', 'bolnav', 'obosit', 'durere' // Romanian words
         ];
         
+        // Pre-compile regex patterns for better performance
+        const positivePatterns = positiveWords.map(word => new RegExp('\\b' + word + '\\w*\\b', 'gi'));
+        const negativePatterns = negativeWords.map(word => new RegExp('\\b' + word + '\\w*\\b', 'gi'));
+        
         let positiveScore = 0;
         let negativeScore = 0;
         
         // Count positive words
-        positiveWords.forEach(word => {
-            const regex = new RegExp('\\b' + word + '\\w*\\b', 'gi');
-            const matches = lowerText.match(regex);
+        positivePatterns.forEach(pattern => {
+            const matches = lowerText.match(pattern);
             if (matches) {
                 positiveScore += matches.length;
             }
         });
         
         // Count negative words
-        negativeWords.forEach(word => {
-            const regex = new RegExp('\\b' + word + '\\w*\\b', 'gi');
-            const matches = lowerText.match(regex);
+        negativePatterns.forEach(pattern => {
+            const matches = lowerText.match(pattern);
             if (matches) {
                 negativeScore += matches.length;
             }
@@ -275,8 +280,8 @@
                 const { sentiment, confidence } = analyzeSentiment(feelingText);
                 
                 // Get pollen data for 2 days
-                const lat = window.currentLat || 44.3302;
-                const lon = window.currentLon || 23.7949;
+                const lat = window.currentLat || DEFAULT_LOCATION.lat;
+                const lon = window.currentLon || DEFAULT_LOCATION.lon;
                 const pollenUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&hourly=alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&forecast_days=2`;
                 
                 fetch(pollenUrl)

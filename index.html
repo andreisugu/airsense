@@ -193,6 +193,9 @@
     <script src="core/static/core/js/home.js"></script>
     <script src="core/static/core/js/static-sentiment.js"></script>
     <script>
+        // Default fallback location (Craiova, Romania)
+        const DEFAULT_LOCATION = { lat: 44.3302, lon: 23.7949 };
+        
         // Initialize app with geolocation
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -200,13 +203,13 @@
                     initializeApp(position.coords.latitude, position.coords.longitude);
                 },
                 function(error) {
-                    // Fallback to Craiova coordinates
-                    initializeApp(44.3302, 23.7949);
+                    // Fallback to default location
+                    initializeApp(DEFAULT_LOCATION.lat, DEFAULT_LOCATION.lon);
                 }
             );
         } else {
-            // Fallback to Craiova coordinates
-            initializeApp(44.3302, 23.7949);
+            // Fallback to default location
+            initializeApp(DEFAULT_LOCATION.lat, DEFAULT_LOCATION.lon);
         }
         
         function initializeApp(lat, lon) {

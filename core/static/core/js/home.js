@@ -3,6 +3,9 @@ const basePath = window.location.pathname.includes('index.html') || window.locat
     ? 'core/static/core/icons/' 
     : '/static/core/icons/';
 
+// Default fallback location (Craiova, Romania)
+const DEFAULT_LOCATION = { lat: 44.3302, lon: 23.7949 };
+
 const weatherCodes = {
     0: `<img src="${basePath}clear_sky.png" class="weather-icon"> Clear sky`,
     1: `<img src="${basePath}mainly_clear.png" class="weather-icon"> Mainly clear`,
@@ -390,8 +393,8 @@ function updatePollenChart(dayIndex, data = currentPollenData) {
 }
 
 function fetchPollenForDate(date, dayIndex = 0) {
-    const lat = window.currentLat || 44.3302;
-    const lon = window.currentLon || 23.7949;
+    const lat = window.currentLat || DEFAULT_LOCATION.lat;
+    const lon = window.currentLon || DEFAULT_LOCATION.lon;
     const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&hourly=alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&start_date=${date}&end_date=${date}`;
     
     fetch(url)
