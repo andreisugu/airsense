@@ -7,32 +7,45 @@ import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.
     // Singleton for sentiment analysis pipeline
     let sentimentPipeline = null;
     let isModelLoading = false;
+    let modelLoadingPromise = null;
+    let modelLoadError = null;
     
     // Function to get or initialize the sentiment pipeline (singleton pattern)
     async function getSentimentPipeline() {
+        // If model already loaded, return it
         if (sentimentPipeline) {
             return sentimentPipeline;
         }
         
-        if (isModelLoading) {
-            // Wait for the model to finish loading
-            while (isModelLoading) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-            }
-            return sentimentPipeline;
+        // If previous loading failed permanently, throw the error
+        if (modelLoadError) {
+            throw modelLoadError;
         }
         
+        // If currently loading, wait for the same promise
+        if (isModelLoading && modelLoadingPromise) {
+            return modelLoadingPromise;
+        }
+        
+        // Start loading the model
         isModelLoading = true;
-        try {
-            sentimentPipeline = await pipeline(
-                'sentiment-analysis',
-                'Xenova/distilbert-base-uncased-finetuned-sst-2-english'
-            );
-        } finally {
-            isModelLoading = false;
-        }
+        modelLoadingPromise = (async () => {
+            try {
+                sentimentPipeline = await pipeline(
+                    'sentiment-analysis',
+                    'Xenova/distilbert-base-uncased-finetuned-sst-2-english'
+                );
+                return sentimentPipeline;
+            } catch (error) {
+                console.error('Failed to load sentiment analysis model:', error);
+                modelLoadError = error;
+                throw error;
+            } finally {
+                isModelLoading = false;
+            }
+        })();
         
-        return sentimentPipeline;
+        return modelLoadingPromise;
     }
     
     // Default fallback location (Craiova, Romania)
