@@ -76,7 +76,13 @@
         'Pollen Recommendations': 'Pollen Recommendations',
         'Low levels of': 'Low levels of',
         'pollen today and you are feeling well': 'pollen today and you are feeling well',
-        'there should be no issues': 'there should be no issues'
+        'there should be no issues': 'there should be no issues',
+        'Recent Cities': 'Recent Cities',
+        'Export Data': 'Export Data',
+        'Clear History': 'Clear History',
+        'Are you sure you want to clear all history? This action cannot be undone.': 'Are you sure you want to clear all history? This action cannot be undone.',
+        'History cleared successfully!': 'History cleared successfully!',
+        'Error clearing history. Please try again.': 'Error clearing history. Please try again.'
     },
     ro: {
         'Weather & Pollen Tracker': 'Monitorizare Vreme & Polen',
@@ -151,7 +157,13 @@
         'Pollen Recommendations': 'Recomandari Polen',
         'Low levels of': 'Nivele scazute de',
         'pollen today and you are feeling well': 'polen astazi si te simti bine',
-        'there should be no issues': 'nu ar trebui sa fie probleme'
+        'there should be no issues': 'nu ar trebui sa fie probleme',
+        'Recent Cities': 'Orase Recente',
+        'Export Data': 'Exporta Date',
+        'Clear History': 'Sterge Istoricul',
+        'Are you sure you want to clear all history? This action cannot be undone.': 'Esti sigur ca vrei sa stergi tot istoricul? Aceasta actiune nu poate fi anulata.',
+        'History cleared successfully!': 'Istoric sters cu succes!',
+        'Error clearing history. Please try again.': 'Eroare la stergerea istoricului. Te rog incearca din nou.'
     }
     };
 

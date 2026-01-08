@@ -1350,3 +1350,185 @@ main {
         padding: 15px;
     }
 }
+/* Recent Cities Section */
+.recent-cities-section {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.recent-cities-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.recent-city-item {
+    background: #f0f8ff;
+    border: 2px solid #007bff;
+    color: #007bff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.recent-city-item:hover {
+    background: #007bff;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+/* History Section */
+.history-section {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.history-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-secondary,
+.btn-danger {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+}
+
+.history-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.history-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.history-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.history-card .card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 15px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9em;
+}
+
+.history-card .card-body {
+    padding: 15px;
+}
+
+.history-card .interaction-date {
+    color: #666;
+    font-size: 0.85em;
+    margin-bottom: 10px;
+}
+
+.history-card .user-feeling {
+    margin: 10px 0;
+    padding: 10px;
+    background: #f9f9f9;
+    border-left: 3px solid #007bff;
+    border-radius: 4px;
+}
+
+.history-card .sentiment-info {
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.sentiment-positive {
+    background: #d4edda;
+    color: #155724;
+}
+
+.sentiment-negative {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.sentiment-neutral {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.history-card .allergies-tags {
+    margin: 10px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.history-card .allergy-tag {
+    background: #007bff;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 0.85em;
+}
+
+@media (max-width: 768px) {
+    .history-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .history-controls {
+        flex-direction: column;
+    }
+    
+    .btn-secondary,
+    .btn-danger {
+        width: 100%;
+    }
+    
+    .recent-cities-list {
+        flex-direction: column;
+    }
+    
+    .recent-city-item {
+        width: 100%;
+        text-align: center;
+    }
+}
