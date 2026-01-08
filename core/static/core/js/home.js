@@ -780,28 +780,31 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    document.getElementById('feelingForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const feelingText = document.getElementById('feelingText').value;
-        const selectedPollens = Array.from(document.querySelectorAll('input[name="pollens"]:checked')).map(cb => cb.value);
-        
-        if (!feelingText.trim()) {
-            alert('Please describe how you feel today.');
-            return;
-        }
-        
-        const formData = new FormData();
-        formData.append('feeling', feelingText);
-        selectedPollens.forEach(pollen => formData.append('pollens', pollen));
-        
-        fetch('/api/sentiment/', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+    // Only add backend API form handler if user is authenticated (Django version)
+    // In static version, static-sentiment.js handles the form
+    if (window.userAuthenticated) {
+        document.getElementById('feelingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const feelingText = document.getElementById('feelingText').value;
+            const selectedPollens = Array.from(document.querySelectorAll('input[name="pollens"]:checked')).map(cb => cb.value);
+            
+            if (!feelingText.trim()) {
+                alert('Please describe how you feel today.');
+                return;
             }
-        })
+            
+            const formData = new FormData();
+            formData.append('feeling', feelingText);
+            selectedPollens.forEach(pollen => formData.append('pollens', pollen));
+            
+            fetch('/api/sentiment/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+                }
+            })
         .then(response => response.json())
         .then(data => {
             const resultDiv = document.getElementById('sentimentResult');
@@ -912,6 +915,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('sentimentResult').innerHTML = '<div class="sentiment-neutral">Error analyzing sentiment</div>';
         });
     });
+    } // End of if (window.userAuthenticated)
 
     
     // Temperature toggle functionality
