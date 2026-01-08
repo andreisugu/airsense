@@ -179,6 +179,21 @@
             border: 1px solid #c3e6cb;
         }
 
+        .notification-status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            background: var(--table-even);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .notification-status.enabled {
+            background: var(--table-even);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
         @media (max-width: 768px) {
             .form-row {
                 grid-template-columns: 1fr;
@@ -326,7 +341,7 @@
                         </select>
                     </div>
                     
-                    <div id="notificationStatus" style="padding: 15px; border-radius: 8px; margin: 20px 0; background: #f8f9fa; color: #666;">
+                    <div id="notificationStatus" class="notification-status">
                         <span id="notificationStatusText">Notifications are not enabled</span>
                     </div>
                     
@@ -469,16 +484,12 @@
             const disableBtn = document.getElementById('disableNotificationsBtn');
             
             if (enabled) {
-                statusDiv.style.background = '#d4edda';
-                statusDiv.style.color = '#155724';
-                statusDiv.style.border = '1px solid #c3e6cb';
+                statusDiv.classList.add('enabled');
                 statusText.textContent = `✅ Daily notifications enabled for ${formatHour(hour)}`;
                 enableBtn.style.display = 'none';
                 disableBtn.style.display = 'inline-block';
             } else {
-                statusDiv.style.background = '#f8f9fa';
-                statusDiv.style.color = '#666';
-                statusDiv.style.border = '1px solid #dee2e6';
+                statusDiv.classList.remove('enabled');
                 statusText.textContent = '🔕 Notifications are not enabled';
                 enableBtn.style.display = 'inline-block';
                 disableBtn.style.display = 'none';
