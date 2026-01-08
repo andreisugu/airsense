@@ -49,21 +49,33 @@
             const dateFrom = document.getElementById('historyDateFrom');
             const dateTo = document.getElementById('historyDateTo');
             
+            let needsUpdate = false;
+            const updates = {};
+            
             if (historySearch && historySearch.value) {
                 historySearch.value = '';
-                if (window.filterHistory) window.filterHistory({ search: '' });
+                updates.search = '';
+                needsUpdate = true;
             }
             if (allergenFilter && allergenFilter.value) {
                 allergenFilter.value = '';
-                if (window.filterHistory) window.filterHistory({ allergen: '' });
+                updates.allergen = '';
+                needsUpdate = true;
             }
             if (dateFrom && dateFrom.value) {
                 dateFrom.value = '';
-                if (window.filterHistory) window.filterHistory({ dateFrom: '' });
+                updates.dateFrom = '';
+                needsUpdate = true;
             }
             if (dateTo && dateTo.value) {
                 dateTo.value = '';
-                if (window.filterHistory) window.filterHistory({ dateTo: '' });
+                updates.dateTo = '';
+                needsUpdate = true;
+            }
+            
+            // Call filterHistory once with all updates
+            if (needsUpdate && window.filterHistory) {
+                window.filterHistory(updates);
             }
         }
         

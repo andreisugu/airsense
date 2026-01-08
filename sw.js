@@ -49,7 +49,7 @@ self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   
   // Cache API responses for 1 hour
-  if (url.hostname.includes('open-meteo.com')) {
+  if (url.hostname === 'api.open-meteo.com' || url.hostname === 'air-quality-api.open-meteo.com') {
     event.respondWith(
       caches.open(CACHE_NAME).then(cache => {
         return cache.match(event.request).then(response => {

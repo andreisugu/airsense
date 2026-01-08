@@ -201,11 +201,14 @@
                     // Refresh display
                     displayHistory();
                     
-                    const translateText = window.translateText || ((text) => text);
-                    alert(translateText(`Successfully imported ${data.length} interactions!`));
+                    if (window.showToast) {
+                        window.showToast(`Successfully imported ${data.length} interactions!`, 'success');
+                    }
                 } catch (error) {
                     console.error('Error importing history:', error);
-                    alert('Error importing history. Please ensure the file is a valid AirSense history export.');
+                    if (window.showToast) {
+                        window.showToast('Error importing history. Please ensure the file is a valid AirSense history export.', 'error');
+                    }
                 }
             };
             reader.readAsText(file);
