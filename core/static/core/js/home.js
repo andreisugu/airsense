@@ -533,6 +533,16 @@ function selectCity(city) {
     document.getElementById('selectedCity').textContent = `${city.name}, ${city.country}`;
     document.getElementById('currentCityName').textContent = `${city.name}, ${city.country}`;
     
+    // Save to recent cities
+    if (window.airsenseStorage) {
+        window.airsenseStorage.saveRecentCity({
+            name: city.name,
+            country: city.country,
+            latitude: city.latitude,
+            longitude: city.longitude
+        });
+    }
+    
     const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${city.latitude}&longitude=${city.longitude}&current=temperature_2m,relative_humidity_2m,weather_code&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto&forecast_days=7`;
     const pollenUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${city.latitude}&longitude=${city.longitude}&hourly=alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&forecast_days=7`;
     
@@ -634,6 +644,35 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof pollenData !== 'undefined') {
         window.pollenData = pollenData;
         currentPollenData = pollenData;
+    }
+    
+    // Load saved preferences from localStorage
+    if (window.airsenseStorage) {
+        // Load temperature unit preference
+        const savedTempIsFahrenheit = window.airsenseStorage.loadTempUnit();
+        if (savedTempIsFahrenheit !== isFahrenheit) {
+            isFahrenheit = savedTempIsFahrenheit;
+            const tempToggle = document.getElementById('tempToggle');
+            if (tempToggle) {
+                tempToggle.textContent = isFahrenheit ? '°C' : '°F';
+            }
+        }
+        
+        // Load saved allergies
+        const savedAllergies = window.airsenseStorage.loadAllergies();
+        if (savedAllergies && savedAllergies.length > 0) {
+            // Uncheck all first
+            document.querySelectorAll('input[name="pollens"]').forEach(cb => {
+                cb.checked = false;
+            });
+            // Check saved ones
+            savedAllergies.forEach(allergy => {
+                const checkbox = document.querySelector(`input[name="pollens"][value="${allergy}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+            });
+        }
     }
     
     // Initialize components
@@ -880,6 +919,11 @@ document.addEventListener('DOMContentLoaded', function() {
         isFahrenheit = !isFahrenheit;
         this.textContent = isFahrenheit ? '°C' : '°F';
         
+        // Save preference to localStorage
+        if (window.airsenseStorage) {
+            window.airsenseStorage.saveTempUnit(isFahrenheit);
+        }
+        
         // Update all temperature displays
         updateCurrentWeather(0);
         updateDailyWeather(0);
@@ -899,10 +943,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
+            // Save allergies to localStorage for static version
+            const allergies = Array.from(checkedBoxes).map(cb => cb.value);
+            if (window.airsenseStorage) {
+                window.airsenseStorage.saveAllergies(allergies);
+            }
+            
             // Update allergies if user is authenticated
             if (window.userAuthenticated) {
-                const allergies = Array.from(checkedBoxes).map(cb => cb.value);
-                
                 const formData = new FormData();
                 allergies.forEach(allergy => formData.append('allergies', allergy));
                 

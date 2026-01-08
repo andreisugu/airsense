@@ -179,6 +179,22 @@
                 </form>
                 <div id="sentimentResult"></div>
             </div>
+            
+            <div class="recent-cities-section" style="margin-top: 30px;">
+                <h2 data-translate="Recent Cities">Recent Cities</h2>
+                <div id="recentCitiesList" class="recent-cities-list"></div>
+            </div>
+            
+            <div class="history-section" style="margin-top: 30px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2 data-translate="Your History">Your History</h2>
+                    <div class="history-controls">
+                        <button id="exportHistory" class="btn-secondary" data-translate="Export Data">Export Data</button>
+                        <button id="clearHistory" class="btn-danger" data-translate="Clear History">Clear History</button>
+                    </div>
+                </div>
+                <div id="historyList" class="history-grid"></div>
+            </div>
         </div>
     </main>
     
@@ -192,10 +208,8 @@
     <script src="core/static/core/js/translations.js"></script>
     <script src="core/static/core/js/home.js"></script>
     <script src="core/static/core/js/static-sentiment.js"></script>
+    <script src="core/static/core/js/local-storage-ui.js"></script>
     <script>
-        // Default fallback location (Craiova, Romania)
-        const DEFAULT_LOCATION = { lat: 44.3302, lon: 23.7949 };
-        
         // Initialize app with geolocation
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(

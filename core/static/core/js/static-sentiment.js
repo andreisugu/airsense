@@ -5,6 +5,159 @@
     // Default fallback location (Craiova, Romania)
     const DEFAULT_LOCATION = { lat: 44.3302, lon: 23.7949 };
     
+    // LocalStorage key constants
+    const STORAGE_KEYS = {
+        HISTORY: 'airsense_history',
+        ALLERGIES: 'airsense_allergies',
+        TEMP_UNIT: 'airsense_temp_unit',
+        RECENT_CITIES: 'airsense_recent_cities'
+    };
+    
+    // History management functions
+    function saveToHistory(interaction) {
+        try {
+            const history = getHistory();
+            history.unshift(interaction); // Add to beginning
+            
+            // Keep only last 50 interactions
+            if (history.length > 50) {
+                history.splice(50);
+            }
+            
+            localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(history));
+        } catch (e) {
+            console.error('Error saving to history:', e);
+        }
+    }
+    
+    function getHistory() {
+        try {
+            const data = localStorage.getItem(STORAGE_KEYS.HISTORY);
+            return data ? JSON.parse(data) : [];
+        } catch (e) {
+            console.error('Error loading history:', e);
+            return [];
+        }
+    }
+    
+    function clearHistory() {
+        try {
+            localStorage.removeItem(STORAGE_KEYS.HISTORY);
+            return true;
+        } catch (e) {
+            console.error('Error clearing history:', e);
+            return false;
+        }
+    }
+    
+    // Preferences management
+    function saveAllergies(allergies) {
+        try {
+            localStorage.setItem(STORAGE_KEYS.ALLERGIES, JSON.stringify(allergies));
+        } catch (e) {
+            console.error('Error saving allergies:', e);
+        }
+    }
+    
+    function loadAllergies() {
+        try {
+            const data = localStorage.getItem(STORAGE_KEYS.ALLERGIES);
+            return data ? JSON.parse(data) : null;
+        } catch (e) {
+            console.error('Error loading allergies:', e);
+            return null;
+        }
+    }
+    
+    function saveTempUnit(isFahrenheit) {
+        try {
+            localStorage.setItem(STORAGE_KEYS.TEMP_UNIT, isFahrenheit ? 'F' : 'C');
+        } catch (e) {
+            console.error('Error saving temp unit:', e);
+        }
+    }
+    
+    function loadTempUnit() {
+        try {
+            const unit = localStorage.getItem(STORAGE_KEYS.TEMP_UNIT);
+            return unit === 'F';
+        } catch (e) {
+            console.error('Error loading temp unit:', e);
+            return false;
+        }
+    }
+    
+    // Recent cities management
+    function saveRecentCity(city) {
+        try {
+            const cities = getRecentCities();
+            
+            // Remove duplicate if exists
+            const filtered = cities.filter(c => 
+                !(c.name === city.name && c.country === city.country)
+            );
+            
+            // Add to beginning
+            filtered.unshift(city);
+            
+            // Keep only 5 most recent
+            if (filtered.length > 5) {
+                filtered.splice(5);
+            }
+            
+            localStorage.setItem(STORAGE_KEYS.RECENT_CITIES, JSON.stringify(filtered));
+        } catch (e) {
+            console.error('Error saving recent city:', e);
+        }
+    }
+    
+    function getRecentCities() {
+        try {
+            const data = localStorage.getItem(STORAGE_KEYS.RECENT_CITIES);
+            return data ? JSON.parse(data) : [];
+        } catch (e) {
+            console.error('Error loading recent cities:', e);
+            return [];
+        }
+    }
+    
+    // Export history data
+    function exportHistory() {
+        try {
+            const history = getHistory();
+            const dataStr = JSON.stringify(history, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `airsense_history_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } catch (e) {
+            console.error('Error exporting history:', e);
+            alert('Error exporting history. Please try again.');
+        }
+    }
+    
+    // Make DEFAULT_LOCATION globally available
+    window.DEFAULT_LOCATION = DEFAULT_LOCATION;
+    
+    // Make functions globally available
+    window.airsenseStorage = {
+        saveToHistory,
+        getHistory,
+        clearHistory,
+        saveAllergies,
+        loadAllergies,
+        saveTempUnit,
+        loadTempUnit,
+        saveRecentCity,
+        getRecentCities,
+        exportHistory
+    };
+    
     // Simple sentiment analysis using keyword matching
     function analyzeSentiment(text) {
         const lowerText = text.toLowerCase();
@@ -300,6 +453,23 @@
                         
                         // Display results
                         displayResults(sentiment, confidence, riskAnalysis, alertLevel, recommendations);
+                        
+                        // Save to history
+                        const interaction = {
+                            timestamp: new Date().toISOString(),
+                            feeling: feelingText,
+                            sentiment: sentiment,
+                            confidence: confidence,
+                            allergies: selectedPollens,
+                            riskAnalysis: riskAnalysis,
+                            alertLevel: alertLevel,
+                            recommendations: recommendations,
+                            location: {
+                                lat: lat,
+                                lon: lon
+                            }
+                        };
+                        saveToHistory(interaction);
                     })
                     .catch(error => {
                         console.error('Error fetching pollen data:', error);
