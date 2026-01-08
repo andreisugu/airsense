@@ -6,7 +6,7 @@
     <title>AirSense - Weather & Pollen Tracker</title>
     
     <!-- PWA Meta Tags -->
-    <link rel="manifest" href="core/static/core/manifest.json">
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4a90e2">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -26,12 +26,15 @@
             </a>
         </div>
         <div class="header-right">
+            <span id="onlineStatus" style="margin-right: 15px; font-size: 0.9em;"></span>
             <button id="langToggle" class="lang-toggle">RO</button>
         </div>
     </header>
     
     <main>
         <div class="container">
+            <div id="installPrompt"></div>
+            
             <h1>AirSense</h1>
             <p data-translate="Weather & Pollen Tracker">Weather & Pollen Tracker</p>
             
@@ -185,14 +188,38 @@
                 <div id="recentCitiesList" class="recent-cities-list"></div>
             </div>
             
+            <div class="statistics-section" style="margin-top: 30px;">
+                <h2 data-translate="Your Statistics">Your Statistics</h2>
+                <div id="statisticsContainer"></div>
+            </div>
+            
             <div class="history-section" style="margin-top: 30px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h2 data-translate="Your History">Your History</h2>
                     <div class="history-controls">
+                        <button id="importHistory" class="btn-secondary" data-translate="Import Data">Import Data</button>
                         <button id="exportHistory" class="btn-secondary" data-translate="Export Data">Export Data</button>
                         <button id="clearHistory" class="btn-danger" data-translate="Clear History">Clear History</button>
                     </div>
                 </div>
+                
+                <div class="history-filters" style="margin-bottom: 15px; padding: 15px; background: #f9f9f9; border-radius: 5px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                        <input type="text" id="historySearch" placeholder="Search feelings..." data-translate="Search feelings..." style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <select id="historyAllergenFilter" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            <option value="" data-translate="All Allergens">All Allergens</option>
+                            <option value="alder">Alder</option>
+                            <option value="birch">Birch</option>
+                            <option value="grass">Grass</option>
+                            <option value="mugwort">Mugwort</option>
+                            <option value="olive">Olive</option>
+                            <option value="ragweed">Ragweed</option>
+                        </select>
+                        <input type="date" id="historyDateFrom" placeholder="From date" data-translate="From date" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="date" id="historyDateTo" placeholder="To date" data-translate="To date" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                </div>
+                
                 <div id="historyList" class="history-grid"></div>
             </div>
         </div>
@@ -209,6 +236,8 @@
     <script src="core/static/core/js/home.js"></script>
     <script src="core/static/core/js/static-sentiment.js"></script>
     <script src="core/static/core/js/local-storage-ui.js"></script>
+    <script src="core/static/core/js/pwa-features.js"></script>
+    <script src="core/static/core/js/keyboard-shortcuts.js"></script>
     <script>
         // Initialize app with geolocation
         if (navigator.geolocation) {
