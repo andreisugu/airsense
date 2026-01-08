@@ -287,7 +287,7 @@
     <script>
         // Load and display history
         function loadHistory() {
-            const history = JSON.parse(localStorage.getItem('feelingHistory') || '[]');
+            const history = JSON.parse(localStorage.getItem('airsense_history') || '[]');
             const searchTerm = document.getElementById('historySearch').value.toLowerCase();
             const allergenFilter = document.getElementById('historyAllergenFilter').value;
             const dateFrom = document.getElementById('historyDateFrom').value;
@@ -350,18 +350,21 @@
                 
                 let sentimentHtml = '';
                 if (item.sentiment) {
+                    const confidencePercent = Math.round((item.confidence || 0) * 100);
                     sentimentHtml = `
                         <div class="sentiment-info">
-                            <strong>Sentiment:</strong> ${item.sentiment}
+                            <strong>Sentiment:</strong> ${item.sentiment} (${confidencePercent}% confidence)
                         </div>
                     `;
                 }
                 
-                let weatherHtml = '';
-                if (item.weather) {
-                    weatherHtml = `
-                        <div class="conditions">
-                            <span class="weather-badge">${item.weather.temp}°C, ${item.weather.humidity}% humidity</span>
+                let alertHtml = '';
+                if (item.alertLevel) {
+                    const tipsHtml = item.alertLevel.tips ? item.alertLevel.tips.map(tip => `<li>${escapeHtml(tip)}</li>`).join('') : '';
+                    alertHtml = `
+                        <div class="recommendations">
+                            <strong>${item.alertLevel.icon || '⚠️'} ${escapeHtml(item.alertLevel.title || 'Alert')}</strong>
+                            ${tipsHtml ? `<ul style="margin: 5px 0; padding-left: 20px;">${tipsHtml}</ul>` : ''}
                         </div>
                     `;
                 }
@@ -380,15 +383,7 @@
                             
                             ${sentimentHtml}
                             ${allergiesHtml}
-                            
-                            ${item.response ? `
-                                <div class="recommendations">
-                                    <strong data-translate="Analysis & Recommendations:">Analysis & Recommendations:</strong>
-                                    ${escapeHtml(item.response).replace(/\n/g, '<br>')}
-                                </div>
-                            ` : ''}
-                            
-                            ${weatherHtml}
+                            ${alertHtml}
                         </div>
                     </div>
                 `;
@@ -403,7 +398,7 @@
 
         // Export history
         function exportHistory() {
-            const history = localStorage.getItem('feelingHistory') || '[]';
+            const history = localStorage.getItem('airsense_history') || '[]';
             const blob = new Blob([history], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -429,9 +424,21 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     if (Array.isArray(data)) {
-                        const existing = JSON.parse(localStorage.getItem('feelingHistory') || '[]');
-                        const merged = [...existing, ...data];
-                        localStorage.setItem('feelingHistory', JSON.stringify(merged));
+                        const existing = JSON.parse(localStorage.getItem('airsense_history') || '[]');
+                        
+                        // Merge and remove duplicates based on timestamp
+                        const merged = [...data, ...existing];
+                        const uniqueHistory = merged.filter((item, index, self) =>
+                            index === self.findIndex(t => t.timestamp === item.timestamp)
+                        );
+                        
+                        // Sort by timestamp (newest first)
+                        uniqueHistory.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                        
+                        // Keep only last 50
+                        const trimmedHistory = uniqueHistory.slice(0, 50);
+                        
+                        localStorage.setItem('airsense_history', JSON.stringify(trimmedHistory));
                         loadHistory();
                         alert('History imported successfully!');
                     } else {
@@ -447,7 +454,7 @@
         // Clear history
         function clearHistory() {
             if (confirm('Are you sure you want to clear all your history? This cannot be undone.')) {
-                localStorage.removeItem('feelingHistory');
+                localStorage.removeItem('airsense_history');
                 loadHistory();
             }
         }

@@ -313,8 +313,10 @@
             document.getElementById('full_name').value = profile.full_name || '';
             document.getElementById('timezone').value = profile.timezone || 'UTC';
             
-            // Load allergies
-            const allergies = profile.allergies || [];
+            // Load allergies from airsense_allergies (compatible with home.js)
+            const allergiesData = localStorage.getItem('airsense_allergies');
+            const allergies = allergiesData ? JSON.parse(allergiesData) : (profile.allergies || []);
+            
             document.querySelectorAll('input[name="allergies"]').forEach(checkbox => {
                 checkbox.checked = allergies.includes(checkbox.value);
             });
@@ -324,15 +326,21 @@
         function saveProfile(event) {
             event.preventDefault();
             
+            const allergies = Array.from(document.querySelectorAll('input[name="allergies"]:checked')).map(cb => cb.value);
+            
             const profile = {
                 username: document.getElementById('username').value,
                 email: document.getElementById('email').value,
                 full_name: document.getElementById('full_name').value,
                 timezone: document.getElementById('timezone').value,
-                allergies: Array.from(document.querySelectorAll('input[name="allergies"]:checked')).map(cb => cb.value)
+                allergies: allergies
             };
             
+            // Save profile
             localStorage.setItem('userProfile', JSON.stringify(profile));
+            
+            // Save allergies in compatible format for home.js
+            localStorage.setItem('airsense_allergies', JSON.stringify(allergies));
             
             // Show success message
             showMessage('Profile updated successfully!', 'success');
