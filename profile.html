@@ -434,6 +434,9 @@
         const NOTIFICATION_STORAGE_KEY = 'airsense_notification_prefs';
         const NOTIFICATION_ICON_PATH = 'core/static/core/icons/pwa-192.png';
         const FORECAST_HOURS = 12; // Number of hours to check for pollen forecast
+        const NOTIFICATION_CHECK_INTERVAL = 300000; // 5 minutes in milliseconds
+        const GEOLOCATION_TIMEOUT = 10000; // 10 seconds
+        const GEOLOCATION_MAX_AGE = 600000; // 10 minutes cache
         
         let notificationCheckInterval = null; // Store interval ID for cleanup
         
@@ -560,8 +563,8 @@
                 clearInterval(notificationCheckInterval);
             }
             
-            // Check every 5 minutes if it's time to send notification (more efficient than every minute)
-            notificationCheckInterval = setInterval(checkAndSendNotification, 300000); // 5 minutes
+            // Check every 5 minutes if it's time to send notification
+            notificationCheckInterval = setInterval(checkAndSendNotification, NOTIFICATION_CHECK_INTERVAL);
             
             // Also check immediately
             checkAndSendNotification();
@@ -607,8 +610,8 @@
                     try {
                         const position = await new Promise((resolve, reject) => {
                             navigator.geolocation.getCurrentPosition(resolve, reject, {
-                                timeout: 10000,
-                                maximumAge: 600000 // 10 minutes cache
+                                timeout: GEOLOCATION_TIMEOUT,
+                                maximumAge: GEOLOCATION_MAX_AGE
                             });
                         });
                         lat = position.coords.latitude;
@@ -638,7 +641,7 @@
                     badge: NOTIFICATION_ICON_PATH,
                     tag: 'airsense-daily',
                     requireInteraction: true,
-                    data: { url: './index.html' }
+                    data: { url: window.location.href.replace('profile.html', 'index.html') }
                 });
                 
                 notification.onclick = function() {
