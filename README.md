@@ -34,6 +34,7 @@ Visit the live demo at: **[https://andreisugu.github.io/airsense/](https://andre
 
 * ✅ **Serverless & Static** - No backend infrastructure needed
 * ✅ **PWA Support** - Install as an app, works offline
+* ✅ **Daily Pollen Notifications** - Subscribe to receive pollen alerts at your preferred time
 * ✅ Full weather and pollen forecasting
 * ✅ Interactive data visualization with Chart.js
 * ✅ City search with autocomplete
@@ -91,6 +92,37 @@ npx http-server -p 8080
 # Using PHP
 php -S localhost:8080
 ```
+
+### **Daily Pollen Notifications**
+
+The serverless version now supports **browser-based daily pollen notifications**! This feature allows users to:
+
+* **Subscribe to daily alerts** at their preferred time (6 AM - 8 PM)
+* **Receive personalized notifications** based on their selected allergies
+* **Get smart pollen forecasts** with actionable recommendations
+* **Stay informed** about pollen levels without opening the app
+
+#### How to Enable:
+1. Open the **Profile** page in AirSense
+2. Scroll to the "Daily Pollen Notifications" section
+3. Choose your preferred notification time
+4. Click **"Enable Daily Notifications"**
+5. Grant browser notification permissions when prompted
+
+#### Privacy Note:
+* All notifications are handled **locally in your browser**
+* No notification data is sent to any server
+* Preferences are stored in browser localStorage
+* You can disable notifications at any time from the Profile page
+
+#### Browser Compatibility:
+Daily notifications work in modern browsers that support the Web Notifications API:
+* ✅ Chrome/Edge (Desktop & Android)
+* ✅ Firefox (Desktop & Android)
+* ✅ Safari (macOS & iOS 16.4+)
+* ✅ Opera (Desktop & Android)
+
+**Note:** Notifications require the browser/tab to be running in the background. For best results, install AirSense as a PWA.
 
 ---
 
