@@ -4,3 +4,4 @@ __pycache__/
 .env
 *.log
 core/migrations/
+test_data.js
