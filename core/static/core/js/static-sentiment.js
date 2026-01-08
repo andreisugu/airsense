@@ -1,6 +1,52 @@
-// Simple client-side sentiment analysis for static GitHub Pages version
+// AI-powered client-side sentiment analysis using Transformers.js for static GitHub Pages version
+import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.0';
+
 (function() {
     'use strict';
+    
+    // Singleton for sentiment analysis pipeline
+    let sentimentPipeline = null;
+    let isModelLoading = false;
+    let modelLoadingPromise = null;
+    let modelLoadError = null;
+    
+    // Function to get or initialize the sentiment pipeline (singleton pattern)
+    async function getSentimentPipeline() {
+        // If model already loaded, return it
+        if (sentimentPipeline) {
+            return sentimentPipeline;
+        }
+        
+        // If previous loading failed permanently, throw the error
+        if (modelLoadError) {
+            throw modelLoadError;
+        }
+        
+        // If currently loading, wait for the same promise
+        if (isModelLoading && modelLoadingPromise) {
+            return modelLoadingPromise;
+        }
+        
+        // Start loading the model
+        isModelLoading = true;
+        modelLoadingPromise = (async () => {
+            try {
+                sentimentPipeline = await pipeline(
+                    'sentiment-analysis',
+                    'Xenova/distilbert-base-uncased-finetuned-sst-2-english'
+                );
+                return sentimentPipeline;
+            } catch (error) {
+                console.error('Failed to load sentiment analysis model:', error);
+                modelLoadError = error;
+                throw error;
+            } finally {
+                isModelLoading = false;
+            }
+        })();
+        
+        return modelLoadingPromise;
+    }
     
     // Default fallback location (Craiova, Romania)
     const DEFAULT_LOCATION = { lat: 44.3302, lon: 23.7949 };
@@ -158,68 +204,27 @@
         exportHistory
     };
     
-    // Simple sentiment analysis using keyword matching
-    function analyzeSentiment(text) {
-        const lowerText = text.toLowerCase();
-        
-        // Positive keywords
-        const positiveWords = [
-            'good', 'great', 'excellent', 'wonderful', 'amazing', 'fantastic', 'perfect',
-            'happy', 'fine', 'well', 'better', 'best', 'love', 'enjoy', 'pleasant',
-            'comfortable', 'calm', 'relaxed', 'energetic', 'healthy', 'fresh', 'clear',
-            'bine', 'minunat', 'excelent', 'fericit', 'perfect' // Romanian words
-        ];
-        
-        // Negative keywords
-        const negativeWords = [
-            'bad', 'terrible', 'awful', 'horrible', 'poor', 'worst', 'hate', 'pain',
-            'sick', 'ill', 'unwell', 'worse', 'tired', 'exhausted', 'stuffy', 'congested',
-            'itchy', 'sneezing', 'coughing', 'difficulty', 'breathing', 'headache',
-            'miserable', 'suffering', 'uncomfortable', 'irritated', 'watery', 'eyes',
-            'rau', 'groaznic', 'bolnav', 'obosit', 'durere' // Romanian words
-        ];
-        
-        // Pre-compile regex patterns for better performance
-        const positivePatterns = positiveWords.map(word => new RegExp('\\b' + word + '\\w*\\b', 'gi'));
-        const negativePatterns = negativeWords.map(word => new RegExp('\\b' + word + '\\w*\\b', 'gi'));
-        
-        let positiveScore = 0;
-        let negativeScore = 0;
-        
-        // Count positive words
-        positivePatterns.forEach(pattern => {
-            const matches = lowerText.match(pattern);
-            if (matches) {
-                positiveScore += matches.length;
-            }
-        });
-        
-        // Count negative words
-        negativePatterns.forEach(pattern => {
-            const matches = lowerText.match(pattern);
-            if (matches) {
-                negativeScore += matches.length;
-            }
-        });
-        
-        // Determine sentiment
-        let sentiment, confidence;
-        
-        if (negativeScore > positiveScore) {
-            sentiment = 'NEGATIVE';
-            const total = positiveScore + negativeScore;
-            confidence = total > 0 ? negativeScore / total : 0.6;
-        } else if (positiveScore > negativeScore) {
-            sentiment = 'POSITIVE';
-            const total = positiveScore + negativeScore;
-            confidence = total > 0 ? positiveScore / total : 0.6;
-        } else {
-            // If no clear sentiment or equal, default to neutral/positive
-            sentiment = 'POSITIVE';
-            confidence = 0.5;
+    // AI-powered sentiment analysis using Transformers.js
+    async function analyzeSentiment(text) {
+        try {
+            const classifier = await getSentimentPipeline();
+            const result = await classifier(text);
+            
+            // Result format: [{ label: 'POSITIVE' or 'NEGATIVE', score: 0.99 }]
+            const prediction = result[0];
+            
+            return {
+                sentiment: prediction.label,
+                confidence: prediction.score
+            };
+        } catch (error) {
+            console.error('Error in AI sentiment analysis:', error);
+            // Fallback to neutral sentiment if AI fails
+            return {
+                sentiment: 'POSITIVE',
+                confidence: 0.5
+            };
         }
-        
-        return { sentiment, confidence: Math.min(confidence, 0.99) };
     }
     
     // Make recommendation based on sentiment and pollen data
@@ -413,7 +418,7 @@
             const newForm = feelingForm.cloneNode(true);
             feelingForm.parentNode.replaceChild(newForm, feelingForm);
             
-            newForm.addEventListener('submit', function(e) {
+            newForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 const feelingText = document.getElementById('feelingText').value;
@@ -429,8 +434,12 @@
                     return;
                 }
                 
-                // Perform sentiment analysis
-                const { sentiment, confidence } = analyzeSentiment(feelingText);
+                // Show loading message while AI model initializes
+                const resultDiv = document.getElementById('sentimentResult');
+                resultDiv.innerHTML = '<div class="sentiment-neutral">🤖 Loading AI Model... This may take a few seconds on first use.</div>';
+                
+                // Perform AI-powered sentiment analysis
+                const { sentiment, confidence } = await analyzeSentiment(feelingText);
                 
                 // Get pollen data for 2 days
                 const lat = window.currentLat || DEFAULT_LOCATION.lat;
