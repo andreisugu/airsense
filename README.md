@@ -22,29 +22,6 @@ Following the hackathon, this fork has been enhanced with a focus on:
 
 The Django backend remains available for those who want user authentication, persistent history, and advanced notification features, but the **primary focus is now the serverless static version**.
 
-## Core Features
-
-### **Serverless Static Version** (Recommended)
-* **🌐 Zero Backend Required:** Runs entirely in your browser via GitHub Pages
-* **📱 Progressive Web App:** Install on your device, works offline
-* **🔒 Privacy First:** No data stored on servers - everything stays on your device
-* **🚀 Instant Deployment:** Fork and deploy in minutes
-* **💰 Zero Cost:** Free hosting on GitHub Pages
-* **Local Forecasts:** Automatically get weather and pollen data for your current location, or search for any city worldwide
-* **AI-Powered Insights:** Client-side sentiment analysis understands your symptoms to tailor advice
-* **Dynamic Risk Analysis:** Select your specific allergens and instantly see a calculated risk level (Low, Medium, High)
-* **Personalized Recommendations:** Receive actionable advice based on your symptoms, local pollen counts, and weather conditions
-* **Interactive Data Visualization:** View beautiful charts of weather and pollen forecasts, powered by Chart.js
-* **Bilingual Support:** Full support for English and Romanian
-
-### **Full Django Version** (Optional)
-For users who need server-side features:
-* **Secure User Authentication:** Full user registration and login system
-* **Interaction History:** Track your symptoms and recommendations over time
-* **Automated Notifications:** Opt-in to receive proactive pollen alerts via Email, Webhook, or Telegram
-* **Advanced AI:** Server-side Hugging Face sentiment analysis model
-* **GDPR Compliance:** Full data privacy controls
-
 ## 🌐 Serverless Static Version (Recommended)
 
 AirSense is now available as a **serverless static web application** that runs entirely in your browser without any backend server! This version is perfect for quick deployment on GitHub Pages and provides a privacy-first, zero-cost solution.
@@ -117,7 +94,17 @@ php -S localhost:8080
 
 ---
 
-##  Getting Started (Full Django Version)
+##  Full Django Version (Optional Backend)
+
+For users who need server-side features, the full Django backend is still available and provides:
+
+* **🔐 User Authentication:** Full user registration and login system
+* **📚 Interaction History:** Track your symptoms and recommendations over time
+* **📧 Automated Notifications:** Opt-in to receive proactive pollen alerts via Email, Webhook, or Telegram
+* **🤖 Advanced AI:** Server-side Hugging Face sentiment analysis model
+* **🛡️ GDPR Compliance:** Full data privacy controls and user data management
+
+###  Getting Started with Django Backend
 
 Follow these instructions to get the full Django version of AirSense running locally with all features including user authentication, history, and notifications.
 
