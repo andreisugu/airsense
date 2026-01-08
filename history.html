@@ -285,9 +285,14 @@
     <script src="core/static/core/js/translations.js"></script>
     <script src="core/static/core/js/pwa-features.js"></script>
     <script>
+        // LocalStorage key constants
+        const STORAGE_KEYS = {
+            HISTORY: 'airsense_history'
+        };
+        
         // Load and display history
         function loadHistory() {
-            const history = JSON.parse(localStorage.getItem('airsense_history') || '[]');
+            const history = JSON.parse(localStorage.getItem(STORAGE_KEYS.HISTORY) || '[]');
             const searchTerm = document.getElementById('historySearch').value.toLowerCase();
             const allergenFilter = document.getElementById('historyAllergenFilter').value;
             const dateFrom = document.getElementById('historyDateFrom').value;
@@ -398,7 +403,7 @@
 
         // Export history
         function exportHistory() {
-            const history = localStorage.getItem('airsense_history') || '[]';
+            const history = localStorage.getItem(STORAGE_KEYS.HISTORY) || '[]';
             const blob = new Blob([history], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -424,7 +429,7 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     if (Array.isArray(data)) {
-                        const existing = JSON.parse(localStorage.getItem('airsense_history') || '[]');
+                        const existing = JSON.parse(localStorage.getItem(STORAGE_KEYS.HISTORY) || '[]');
                         
                         // Merge and remove duplicates based on timestamp
                         const merged = [...data, ...existing];
@@ -438,7 +443,7 @@
                         // Keep only last 50
                         const trimmedHistory = uniqueHistory.slice(0, 50);
                         
-                        localStorage.setItem('airsense_history', JSON.stringify(trimmedHistory));
+                        localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(trimmedHistory));
                         loadHistory();
                         alert('History imported successfully!');
                     } else {
@@ -454,7 +459,7 @@
         // Clear history
         function clearHistory() {
             if (confirm('Are you sure you want to clear all your history? This cannot be undone.')) {
-                localStorage.removeItem('airsense_history');
+                localStorage.removeItem(STORAGE_KEYS.HISTORY);
                 loadHistory();
             }
         }

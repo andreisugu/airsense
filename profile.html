@@ -304,9 +304,15 @@
     <script src="core/static/core/js/translations.js"></script>
     <script src="core/static/core/js/pwa-features.js"></script>
     <script>
+        // LocalStorage key constants
+        const STORAGE_KEYS = {
+            USER_PROFILE: 'userProfile',
+            ALLERGIES: 'airsense_allergies'
+        };
+        
         // Load profile data from localStorage
         function loadProfile() {
-            const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+            const profile = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER_PROFILE) || '{}');
             
             document.getElementById('username').value = profile.username || '';
             document.getElementById('email').value = profile.email || '';
@@ -314,7 +320,7 @@
             document.getElementById('timezone').value = profile.timezone || 'UTC';
             
             // Load allergies from airsense_allergies (compatible with home.js)
-            const allergiesData = localStorage.getItem('airsense_allergies');
+            const allergiesData = localStorage.getItem(STORAGE_KEYS.ALLERGIES);
             const allergies = allergiesData ? JSON.parse(allergiesData) : (profile.allergies || []);
             
             document.querySelectorAll('input[name="allergies"]').forEach(checkbox => {
@@ -337,10 +343,10 @@
             };
             
             // Save profile
-            localStorage.setItem('userProfile', JSON.stringify(profile));
+            localStorage.setItem(STORAGE_KEYS.USER_PROFILE, JSON.stringify(profile));
             
             // Save allergies in compatible format for home.js
-            localStorage.setItem('airsense_allergies', JSON.stringify(allergies));
+            localStorage.setItem(STORAGE_KEYS.ALLERGIES, JSON.stringify(allergies));
             
             // Show success message
             showMessage('Profile updated successfully!', 'success');
