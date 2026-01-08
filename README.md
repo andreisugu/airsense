@@ -1,36 +1,39 @@
 # AirSense: AI-Powered Allergy Forecast & Recommendation App
 
-[![Django CI](https://github.com/mihail-pop/airsense/actions/workflows/django.yml/badge.svg?branch=main)](https://github.com/mihail-pop/airsense/actions/workflows/django.yml)
+[![Django CI](https://github.com/andreisugu/airsense/actions/workflows/django.yml/badge.svg?branch=main)](https://github.com/andreisugu/airsense/actions/workflows/django.yml)
 
-**Developed for Hackathon Craiova 2025 by Team Cloud**
+**Originally developed for Hackathon Craiova 2025 by Team Cloud**
 *(Alin Radu Andrei Moisă, Andrei Șugubete, Mihail Popescu)*
+
+> **Note:** This is **@andreisugu's fork** of the original project, actively maintained and enhanced post-hackathon. The project has evolved towards a **serverless, static-first architecture** optimized for GitHub Pages deployment, with PWA (Progressive Web App) capabilities for offline use.
 
 ### **Know Before You Go: Your Personal AI Allergy Assistant**
 
 AirSense is an intelligent web application designed to help you proactively manage your allergies. By combining real-time weather forecasts, local pollen data, and AI-powered analysis of your symptoms, AirSense provides personalized recommendations and smart alerts to help you navigate your day with confidence.
 
-## Core Features
+## 🚀 Post-Hackathon Evolution: Serverless Architecture
 
-* **Local Forecasts:** Automatically get weather and pollen data for your current location, or search for any city worldwide.
-* **AI-Powered Insights:** Describe how you're feeling in your own words. Our sentiment analysis model understands your input to tailor its advice.
-* **Dynamic Risk Analysis:** Select your specific allergens and instantly see a calculated risk level (Low, Medium, High) for today and tomorrow.
-* **Personalized Recommendations:** Receive actionable advice based on the unique combination of your symptoms, local pollen counts, and weather conditions.
-* **Smart Alert System:** Get categorized alerts (e.g., Critical, High Risk, Proactive) with clear, immediate tips to help you take action.
-* **Interactive Data Visualization:** View beautiful charts of weather and pollen forecasts, powered by Chart.js.
-* **Interaction History:** Keep track of your symptoms and our recommendations over time in a clear, card-based history log.
-* **Automated Notifications:** Opt-in to receive proactive pollen alerts via Email, Webhook, or Telegram before your day even starts.
-* **Secure & Private:** Full user authentication, profile management, and GDPR compliance to ensure your data is safe and you are in control.
+Following the hackathon, this fork has been enhanced with a focus on:
+* **Serverless deployment** via GitHub Pages (no backend infrastructure required)
+* **Progressive Web App (PWA)** capabilities with offline support
+* **100% client-side operation** - all processing happens in your browser
+* **Zero-cost hosting** - deploy for free on GitHub Pages
+* **Privacy-first design** - no data leaves your device unless you explicitly configure notifications
 
-## 🌐 GitHub Pages Static Version
+The Django backend remains available for those who want user authentication, persistent history, and advanced notification features, but the **primary focus is now the serverless static version**.
 
-AirSense is now available as a **static web application** that can run entirely in your browser without any backend server! This version is perfect for quick deployment on GitHub Pages.
+## 🌐 Serverless Static Version (Recommended)
 
-### **Live Demo**
+AirSense is now available as a **serverless static web application** that runs entirely in your browser without any backend server! This version is perfect for quick deployment on GitHub Pages and provides a privacy-first, zero-cost solution.
 
-Visit the live demo at: `https://YOUR_USERNAME.github.io/airsense/`
+### **✨ Live Demo**
 
-### **Features of the Static Version**
+Visit the live demo at: **[https://andreisugu.github.io/airsense/](https://andreisugu.github.io/airsense/)**
 
+### **Key Features**
+
+* ✅ **Serverless & Static** - No backend infrastructure needed
+* ✅ **PWA Support** - Install as an app, works offline
 * ✅ Full weather and pollen forecasting
 * ✅ Interactive data visualization with Chart.js
 * ✅ City search with autocomplete
@@ -39,15 +42,17 @@ Visit the live demo at: `https://YOUR_USERNAME.github.io/airsense/`
 * ✅ Risk analysis and alert system
 * ✅ Bilingual support (English/Romanian)
 * ✅ Fully responsive design
-* ✅ **100% client-side - No data stored on servers**
-* ❌ No user authentication or history (requires backend)
+* ✅ **Privacy-focused** - No data stored on servers
+* ❌ No user authentication or persistent history (requires Django backend)
 
-### **How to Deploy on GitHub Pages**
+### **Quick Start: Deploy Your Own**
 
-1. **Fork or Clone this repository**
+1. **Fork this repository**
+   - Click the "Fork" button at the top of this page
+   - This creates your own copy of AirSense
 
 2. **Enable GitHub Pages:**
-   - Go to your repository on GitHub
+   - Go to your forked repository on GitHub
    - Click on **Settings** → **Pages**
    - Under **Source**, select **Deploy from a branch**
    - Select branch: **main** (or your preferred branch)
@@ -60,8 +65,8 @@ Visit the live demo at: `https://YOUR_USERNAME.github.io/airsense/`
    - You'll see a green checkmark when it's ready
 
 4. **Access your site:**
-   - Your site will be available at: `https://YOUR_USERNAME.github.io/REPOSITORY_NAME/`
-   - For example: `https://andreisugu.github.io/airsense/`
+   - Your site will be available at: `https://YOUR_USERNAME.github.io/airsense/`
+   - Example: `https://andreisugu.github.io/airsense/`
 
 ### **Testing Locally**
 
@@ -89,7 +94,17 @@ php -S localhost:8080
 
 ---
 
-##  Getting Started (Full Django Version)
+##  Full Django Version (Optional Backend)
+
+For users who need server-side features, the full Django backend is still available and provides:
+
+* **🔐 User Authentication:** Full user registration and login system
+* **📚 Interaction History:** Track your symptoms and recommendations over time
+* **📧 Automated Notifications:** Opt-in to receive proactive pollen alerts via Email, Webhook, or Telegram
+* **🤖 Advanced AI:** Server-side Hugging Face sentiment analysis model
+* **🛡️ GDPR Compliance:** Full data privacy controls and user data management
+
+###  Getting Started with Django Backend
 
 Follow these instructions to get the full Django version of AirSense running locally with all features including user authentication, history, and notifications.
 
@@ -168,16 +183,17 @@ python manage.py send_notifications
 
 ##  How It Works
 
-### **Static Version (GitHub Pages)**
+### **Serverless Static Version** (Primary Architecture)
 
 1.  **User Input:** The user describes how they are feeling and selects the pollens they are allergic to.
 2.  **Data Collection:** The browser fetches the user's location via geolocation API, then retrieves 7-day weather and pollen forecasts directly from Open-Meteo APIs.
 3.  **Client-Side Analysis:**
     * A **keyword-based sentiment analysis** determines if the user's feeling is 'POSITIVE' or 'NEGATIVE' by analyzing word patterns.
     * Custom JavaScript logic combines this sentiment with pollen and weather data to calculate risk, generate recommendations, and assign an alert level.
-4.  **Response:** The analysis is displayed immediately in the browser. No data is stored anywhere.
+4.  **Local Storage:** All data is stored in the browser's local storage for session persistence. No data is sent to any server.
+5.  **PWA Features:** Service worker enables offline functionality and app-like experience.
 
-### **Full Django Version**
+### **Full Django Version** (Optional Backend)
 
 1.  **User Input:** The user describes how they are feeling and selects the pollens they are allergic to.
 2.  **Data Collection:** The backend fetches the user's location, a 7-day weather forecast, and a 7-day pollen forecast from the Open-Meteo and Air-Quality APIs.
@@ -188,20 +204,22 @@ python manage.py send_notifications
 
 ##  Technologies Used
 
-### **Static Version (GitHub Pages)**
+### **Serverless Static Version** (Primary)
 
 | Category   | Technology / Service                                                                                      |
 | ---------- | --------------------------------------------------------------------------------------------------------- |
-| **Frontend** | HTML5, CSS3, JavaScript, Chart.js                                                                         |
+| **Frontend** | HTML5, CSS3, JavaScript (ES6+), Chart.js                                                                |
+| **PWA** | Service Workers, Web App Manifest, LocalStorage API                                                       |
 | **AI / ML** | Client-side keyword-based sentiment analysis                                                              |
 | **APIs** | Open-Meteo (Weather & Air-Quality), BigDataCloud (Geolocation)                                           |
-| **Hosting** | GitHub Pages (static files only)                                                                          |
+| **Hosting** | GitHub Pages (serverless static hosting)                                                                  |
+| **Deployment** | Git-based continuous deployment                                                                         |
 
-### **Full Django Version**
+### **Full Django Version** (Optional Backend)
 
 | Category   | Technology / Service                                                                                      |
 | ---------- | --------------------------------------------------------------------------------------------------------- |
-| **Backend** | Python, Django                                                                                            |
+| **Backend** | Python 3.9+, Django                                                                                       |
 | **Frontend** | HTML5, CSS3, JavaScript, Chart.js                                                                         |
 | **AI / ML** | Hugging Face Transformers (`distilbert-base-uncased-finetuned-sst-2-english`)                               |
 | **APIs** | Open-Meteo (Weather & Air-Quality), ip-api.com (Geolocation)                                              |
@@ -209,7 +227,7 @@ python manage.py send_notifications
 
 ##  Contributing
 
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+This is an actively maintained fork by [@andreisugu](https://github.com/andreisugu), evolved from the original Hackathon Craiova 2025 project. Contributions are welcome and greatly appreciated!
 
 If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
 
@@ -220,6 +238,12 @@ If you have a suggestion that would make this better, please fork the repo and c
 5.  Open a Pull Request
 
 Don't forget to give the project a star! Thanks again!
+
+## 📜 Project History
+
+* **January 2025**: Hackathon Craiova 2025 - Original development by Team Cloud
+* **Post-Hackathon**: Forked and maintained by @andreisugu with focus on serverless architecture
+* **Current**: Active development emphasizing PWA capabilities, GitHub Pages deployment, and privacy-first design
 
 ## License
 
