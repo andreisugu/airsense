@@ -1773,6 +1773,7 @@ body.dark-mode .dropdown-menu {
     border: 1px solid var(--border-color);
 }
 
+/* !important needed to override header link styles */
 body.dark-mode .dropdown-menu a {
     color: var(--text-color) !important;
 }

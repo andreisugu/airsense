@@ -33,11 +33,11 @@
         const icon = darkModeButton.querySelector('.icon');
         if (document.body.classList.contains('dark-mode')) {
             icon.textContent = '☀️';
-            darkModeButton.setAttribute('aria-label', 'Toggle dark mode');
+            darkModeButton.setAttribute('aria-label', 'Switch to light mode');
             darkModeButton.setAttribute('title', 'Switch to light mode');
         } else {
             icon.textContent = '🌙';
-            darkModeButton.setAttribute('aria-label', 'Toggle dark mode');
+            darkModeButton.setAttribute('aria-label', 'Switch to dark mode');
             darkModeButton.setAttribute('title', 'Switch to dark mode');
         }
     }
