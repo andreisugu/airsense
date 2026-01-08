@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History - AirSense</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4a90e2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="AirSense">
+    <link rel="apple-touch-icon" href="core/static/core/icons/pwa-192.png">
+    
+    <link rel="icon" type="image/x-icon" href="core/static/core/icons/favicon_airsense.ico">
+    <link rel="stylesheet" href="core/static/core/css/home.css">
+    <style>
+        .history-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .history-container h1 {
+            text-align: center;
+            color: #1976d2;
+            font-size: 2.5em;
+            font-weight: 300;
+            margin-bottom: 30px;
+        }
+
+        .history-controls {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.1);
+        }
+
+        .history-filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .history-filters input,
+        .history-filters select {
+            padding: 10px;
+            border: 2px solid #e3f2fd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .history-filters input:focus,
+        .history-filters select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .history-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.1);
+            border: 1px solid rgba(33, 150, 243, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .history-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e3f2fd;
+        }
+
+        .date {
+            font-weight: 600;
+            color: #1976d2;
+            font-size: 1.1em;
+        }
+
+        .time {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        .card-body {
+            color: #495057;
+        }
+
+        .user-feeling {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-style: italic;
+        }
+
+        .allergies-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .allergy-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .recommendations {
+            margin-top: 15px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 8px;
+            border-left: 4px solid #4caf50;
+        }
+
+        .recommendations strong {
+            color: #2e7d32;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .conditions {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff3e0;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+
+        .weather-badge {
+            color: #e65100;
+            font-weight: 500;
+        }
+
+        .sentiment-info {
+            margin: 10px 0;
+            padding: 8px;
+            background: #fff9c4;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.1);
+        }
+
+        .empty-state p {
+            color: #6c757d;
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 768px) {
+            .history-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .history-actions {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-left">
+            <a href="index.html" class="home-link">
+                <img src="core/static/core/icons/cloud.png" alt="AirSense" class="site-icon">
+                <span class="logo-text">AirSense</span>
+            </a>
+        </div>
+        <div class="header-right">
+            <span id="onlineStatus" style="margin-right: 15px; font-size: 0.9em;"></span>
+            <button id="langToggle" class="lang-toggle">RO</button>
+            <a href="history.html" style="margin-left: 15px;">History</a>
+            <a href="profile.html" style="margin-left: 15px;">Profile</a>
+        </div>
+    </header>
+    
+    <main>
+        <div class="history-container">
+            <h1 data-translate="Your History">📜 Your History</h1>
+            
+            <div class="history-controls">
+                <div class="history-filters">
+                    <input type="text" id="historySearch" placeholder="Search feelings..." data-translate="Search feelings...">
+                    <select id="historyAllergenFilter">
+                        <option value="" data-translate="All Allergens">All Allergens</option>
+                        <option value="alder">Alder</option>
+                        <option value="birch">Birch</option>
+                        <option value="grass">Grass</option>
+                        <option value="mugwort">Mugwort</option>
+                        <option value="olive">Olive</option>
+                        <option value="ragweed">Ragweed</option>
+                    </select>
+                    <input type="date" id="historyDateFrom" placeholder="From date" data-translate="From date">
+                    <input type="date" id="historyDateTo" placeholder="To date" data-translate="To date">
+                </div>
+                <div class="history-actions">
+                    <button id="importHistory" class="btn btn-secondary" data-translate="Import Data">📥 Import Data</button>
+                    <button id="exportHistory" class="btn btn-secondary" data-translate="Export Data">📤 Export Data</button>
+                    <button id="clearHistory" class="btn btn-danger" data-translate="Clear History">🗑️ Clear History</button>
+                </div>
+            </div>
+            
+            <div id="historyList" class="history-grid"></div>
+        </div>
+    </main>
+    
+    <footer class="site-footer">
+        <div class="footer-content">
+            <a href="https://github.com/andreisugu/airsense" target="_blank">GitHub Repository</a> | 
+            <span>Privacy Note: This static version runs entirely in your browser. No data is stored on any server.</span>
+        </div>
+    </footer>
+    
+    <input type="file" id="importFileInput" style="display: none;" accept=".json">
+    
+    <script src="core/static/core/js/translations.js"></script>
+    <script src="core/static/core/js/pwa-features.js"></script>
+    <script>
+        // Load and display history
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('feelingHistory') || '[]');
+            const searchTerm = document.getElementById('historySearch').value.toLowerCase();
+            const allergenFilter = document.getElementById('historyAllergenFilter').value;
+            const dateFrom = document.getElementById('historyDateFrom').value;
+            const dateTo = document.getElementById('historyDateTo').value;
+            
+            // Filter history
+            let filtered = history.filter(item => {
+                // Search filter
+                if (searchTerm && !item.feeling.toLowerCase().includes(searchTerm)) {
+                    return false;
+                }
+                
+                // Allergen filter
+                if (allergenFilter && (!item.allergies || !item.allergies.includes(allergenFilter))) {
+                    return false;
+                }
+                
+                // Date filters
+                const itemDate = new Date(item.timestamp).toISOString().split('T')[0];
+                if (dateFrom && itemDate < dateFrom) {
+                    return false;
+                }
+                if (dateTo && itemDate > dateTo) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            const container = document.getElementById('historyList');
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p data-translate="No interactions found. Start using the app to see your history here!">
+                            No interactions found. Start using the app to see your history here!
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort by most recent first
+            filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            container.innerHTML = filtered.map(item => {
+                const date = new Date(item.timestamp);
+                const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                const fullDateStr = date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                
+                let allergiesHtml = '';
+                if (item.allergies && item.allergies.length > 0) {
+                    allergiesHtml = `
+                        <div class="allergies-tags">
+                            ${item.allergies.map(a => `<span class="allergy-tag">${a}</span>`).join('')}
+                        </div>
+                    `;
+                }
+                
+                let sentimentHtml = '';
+                if (item.sentiment) {
+                    sentimentHtml = `
+                        <div class="sentiment-info">
+                            <strong>Sentiment:</strong> ${item.sentiment}
+                        </div>
+                    `;
+                }
+                
+                let weatherHtml = '';
+                if (item.weather) {
+                    weatherHtml = `
+                        <div class="conditions">
+                            <span class="weather-badge">${item.weather.temp}°C, ${item.weather.humidity}% humidity</span>
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="history-card">
+                        <div class="card-header">
+                            <span class="date">${dateStr}</span>
+                            <span class="time">${timeStr}</span>
+                        </div>
+                        
+                        <div class="card-body">
+                            <div class="user-feeling">
+                                <strong data-translate="Feeling:">Feeling:</strong> ${escapeHtml(item.feeling)}
+                            </div>
+                            
+                            ${sentimentHtml}
+                            ${allergiesHtml}
+                            
+                            ${item.response ? `
+                                <div class="recommendations">
+                                    <strong data-translate="Analysis & Recommendations:">Analysis & Recommendations:</strong>
+                                    ${escapeHtml(item.response).replace(/\n/g, '<br>')}
+                                </div>
+                            ` : ''}
+                            
+                            ${weatherHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Export history
+        function exportHistory() {
+            const history = localStorage.getItem('feelingHistory') || '[]';
+            const blob = new Blob([history], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `airsense-history-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Import history
+        function importHistory() {
+            document.getElementById('importFileInput').click();
+        }
+
+        function handleImportFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (Array.isArray(data)) {
+                        const existing = JSON.parse(localStorage.getItem('feelingHistory') || '[]');
+                        const merged = [...existing, ...data];
+                        localStorage.setItem('feelingHistory', JSON.stringify(merged));
+                        loadHistory();
+                        alert('History imported successfully!');
+                    } else {
+                        alert('Invalid file format');
+                    }
+                } catch (error) {
+                    alert('Error reading file: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Clear history
+        function clearHistory() {
+            if (confirm('Are you sure you want to clear all your history? This cannot be undone.')) {
+                localStorage.removeItem('feelingHistory');
+                loadHistory();
+            }
+        }
+
+        // Event listeners
+        document.getElementById('historySearch').addEventListener('input', loadHistory);
+        document.getElementById('historyAllergenFilter').addEventListener('change', loadHistory);
+        document.getElementById('historyDateFrom').addEventListener('change', loadHistory);
+        document.getElementById('historyDateTo').addEventListener('change', loadHistory);
+        document.getElementById('exportHistory').addEventListener('click', exportHistory);
+        document.getElementById('importHistory').addEventListener('click', importHistory);
+        document.getElementById('clearHistory').addEventListener('click', clearHistory);
+        document.getElementById('importFileInput').addEventListener('change', handleImportFile);
+
+        // Load history on page load
+        loadHistory();
+    </script>
+</body>
+</html>
