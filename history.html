@@ -25,18 +25,19 @@
 
         .history-container h1 {
             text-align: center;
-            color: #1976d2;
+            color: var(--primary-dark);
             font-size: 2.5em;
             font-weight: 300;
             margin-bottom: 30px;
         }
 
         .history-controls {
-            background: white;
+            background: var(--bg-card);
             padding: 20px;
             border-radius: 15px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.1);
+            box-shadow: 0 4px 15px var(--shadow-color);
+            border: 1px solid var(--border-color);
         }
 
         .history-filters {
@@ -49,16 +50,18 @@
         .history-filters input,
         .history-filters select {
             padding: 10px;
-            border: 2px solid #e3f2fd;
+            border: 2px solid var(--input-border);
             border-radius: 8px;
             font-size: 1em;
             transition: border-color 0.3s;
+            background: var(--input-bg);
+            color: var(--text-color);
         }
 
         .history-filters input:focus,
         .history-filters select:focus {
             outline: none;
-            border-color: #007bff;
+            border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
         }
 
@@ -107,17 +110,17 @@
         }
 
         .history-card {
-            background: white;
+            background: var(--bg-card);
             border-radius: 15px;
             padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.1);
-            border: 1px solid rgba(33, 150, 243, 0.1);
+            box-shadow: 0 4px 15px var(--shadow-color);
+            border: 1px solid var(--border-color);
             transition: transform 0.3s, box-shadow 0.3s;
         }
 
         .history-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.2);
+            box-shadow: 0 8px 25px var(--shadow-color);
         }
 
         .card-header {
@@ -126,30 +129,31 @@
             align-items: center;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #e3f2fd;
+            border-bottom: 2px solid var(--border-color);
         }
 
         .date {
             font-weight: 600;
-            color: #1976d2;
+            color: var(--primary-dark);
             font-size: 1.1em;
         }
 
         .time {
-            color: #6c757d;
+            color: var(--text-secondary);
             font-size: 0.9em;
         }
 
         .card-body {
-            color: #495057;
+            color: var(--text-color);
         }
 
         .user-feeling {
             margin-bottom: 15px;
             padding: 10px;
-            background: #f8f9fa;
+            background: var(--table-even);
             border-radius: 8px;
             font-style: italic;
+            color: var(--text-color);
         }
 
         .allergies-tags {
@@ -160,8 +164,8 @@
         }
 
         .allergy-tag {
-            background: #e3f2fd;
-            color: #1976d2;
+            background: var(--primary-light);
+            color: var(--primary-color);
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 0.85em;
@@ -171,13 +175,13 @@
         .recommendations {
             margin-top: 15px;
             padding: 15px;
-            background: #e8f5e9;
+            background: var(--table-even);
             border-radius: 8px;
             border-left: 4px solid #4caf50;
         }
 
         .recommendations strong {
-            color: #2e7d32;
+            color: var(--text-color);
             display: block;
             margin-bottom: 8px;
         }
@@ -185,34 +189,35 @@
         .conditions {
             margin-top: 10px;
             padding: 10px;
-            background: #fff3e0;
+            background: var(--table-even);
             border-radius: 8px;
             font-size: 0.9em;
         }
 
         .weather-badge {
-            color: #e65100;
+            color: var(--primary-color);
             font-weight: 500;
         }
 
         .sentiment-info {
             margin: 10px 0;
             padding: 8px;
-            background: #fff9c4;
+            background: var(--table-even);
             border-radius: 8px;
             font-size: 0.9em;
+            color: var(--text-color);
         }
 
         .empty-state {
             text-align: center;
             padding: 60px 20px;
-            background: white;
+            background: var(--bg-card);
             border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.1);
+            box-shadow: 0 4px 15px var(--shadow-color);
         }
 
         .empty-state p {
-            color: #6c757d;
+            color: var(--text-secondary);
             font-size: 1.2em;
         }
 
