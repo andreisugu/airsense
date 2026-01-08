@@ -437,6 +437,8 @@
         const NOTIFICATION_CHECK_INTERVAL = 300000; // 5 minutes in milliseconds
         const GEOLOCATION_TIMEOUT = 10000; // 10 seconds
         const GEOLOCATION_MAX_AGE = 600000; // 10 minutes cache
+        const HIGH_POLLEN_THRESHOLD = 90; // High alert threshold for pollen levels
+        const MODERATE_POLLEN_THRESHOLD = 20; // Moderate alert threshold for pollen levels
         
         let notificationCheckInterval = null; // Store interval ID for cleanup
         
@@ -617,8 +619,9 @@
                         lat = position.coords.latitude;
                         lon = position.coords.longitude;
                     } catch (error) {
+                        // Geolocation failed (user denied, timeout, or unavailable)
+                        // Fall back to default Craiova, Romania coordinates
                         console.log('Using default location due to geolocation error:', error);
-                        // Continue with default location
                     }
                 }
                 
@@ -634,14 +637,17 @@
                 // Analyze pollen levels
                 const analysis = analyzePollenForNotification(pollenData, allergies);
                 
-                // Create notification
+                // Create notification with link back to main page
+                const currentUrl = new URL(window.location.href);
+                currentUrl.pathname = currentUrl.pathname.replace('profile.html', 'index.html');
+                
                 const notification = new Notification('AirSense Daily Pollen Update', {
                     body: analysis.message,
                     icon: NOTIFICATION_ICON_PATH,
                     badge: NOTIFICATION_ICON_PATH,
                     tag: 'airsense-daily',
                     requireInteraction: true,
-                    data: { url: window.location.href.replace('profile.html', 'index.html') }
+                    data: { url: currentUrl.href }
                 });
                 
                 notification.onclick = function() {
@@ -694,17 +700,13 @@
                 }
             }
             
-            // Pollen level thresholds
-            const HIGH_THRESHOLD = 90;
-            const MODERATE_THRESHOLD = 20;
-            
-            // Create message
+            // Create message based on pollen thresholds
             let message;
             if (alerts.length === 0) {
                 message = '✅ Good news! Pollen levels are low today for your allergies.';
-            } else if (maxLevel >= HIGH_THRESHOLD) {
+            } else if (maxLevel >= HIGH_POLLEN_THRESHOLD) {
                 message = `⚠️ HIGH ALERT: ${alerts.join(', ')}. Stay indoors if possible!`;
-            } else if (maxLevel >= MODERATE_THRESHOLD) {
+            } else if (maxLevel >= MODERATE_POLLEN_THRESHOLD) {
                 message = `⚠️ Moderate levels: ${alerts.join(', ')}. Take precautions.`;
             } else {
                 message = `🟡 Low levels: ${alerts.join(', ')}. Be cautious outdoors.`;
