@@ -432,8 +432,10 @@
         
         // ===== Notification Functionality =====
         const NOTIFICATION_STORAGE_KEY = 'airsense_notification_prefs';
-        const NOTIFICATION_ICON = 'core/static/core/icons/pwa-192.png';
-        const NOTIFICATION_BADGE = 'core/static/core/icons/pwa-192.png';
+        const NOTIFICATION_ICON_PATH = 'core/static/core/icons/pwa-192.png';
+        const FORECAST_HOURS = 12; // Number of hours to check for pollen forecast
+        
+        let notificationCheckInterval = null; // Store interval ID for cleanup
         
         // Load notification preferences
         function loadNotificationPreferences() {
@@ -522,6 +524,12 @@
         
         // Disable notifications
         function disableNotifications() {
+            // Clear notification check interval
+            if (notificationCheckInterval) {
+                clearInterval(notificationCheckInterval);
+                notificationCheckInterval = null;
+            }
+            
             localStorage.removeItem(NOTIFICATION_STORAGE_KEY);
             updateNotificationStatus(false);
             showMessage('Daily notifications disabled', 'success');
@@ -532,8 +540,8 @@
             if (Notification.permission === 'granted') {
                 const notification = new Notification('AirSense Notifications Enabled', {
                     body: 'You will receive daily pollen updates at your chosen time.',
-                    icon: NOTIFICATION_ICON,
-                    badge: NOTIFICATION_BADGE,
+                    icon: NOTIFICATION_ICON_PATH,
+                    badge: NOTIFICATION_ICON_PATH,
                     tag: 'airsense-test',
                     requireInteraction: false
                 });
@@ -547,8 +555,13 @@
         
         // Schedule notification check
         function scheduleNotificationCheck() {
+            // Clear any existing interval
+            if (notificationCheckInterval) {
+                clearInterval(notificationCheckInterval);
+            }
+            
             // Check every 5 minutes if it's time to send notification (more efficient than every minute)
-            setInterval(checkAndSendNotification, 300000); // 5 minutes
+            notificationCheckInterval = setInterval(checkAndSendNotification, 300000); // 5 minutes
             
             // Also check immediately
             checkAndSendNotification();
@@ -607,7 +620,7 @@
                 }
                 
                 // Fetch pollen data
-                const pollenUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&hourly=alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&forecast_hours=12`;
+                const pollenUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&hourly=alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&forecast_hours=${FORECAST_HOURS}`;
                 const response = await fetch(pollenUrl);
                 const pollenData = await response.json();
                 
@@ -621,11 +634,11 @@
                 // Create notification
                 const notification = new Notification('AirSense Daily Pollen Update', {
                     body: analysis.message,
-                    icon: NOTIFICATION_ICON,
-                    badge: NOTIFICATION_BADGE,
+                    icon: NOTIFICATION_ICON_PATH,
+                    badge: NOTIFICATION_ICON_PATH,
                     tag: 'airsense-daily',
                     requireInteraction: true,
-                    data: { url: window.location.origin + '/airsense/index.html' }
+                    data: { url: './index.html' }
                 });
                 
                 notification.onclick = function() {
@@ -661,7 +674,7 @@
             for (const allergy of userAllergies) {
                 const pollenKey = pollenTypes[allergy];
                 if (pollenKey && hourly[pollenKey]) {
-                    const values = hourly[pollenKey].slice(0, 12).filter(v => v !== null && v !== undefined);
+                    const values = hourly[pollenKey].slice(0, FORECAST_HOURS).filter(v => v !== null && v !== undefined);
                     if (values.length === 0) continue;
                     
                     const maxValue = Math.max(...values);
@@ -732,6 +745,13 @@
         if (prefs.enabled) {
             scheduleNotificationCheck();
         }
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (notificationCheckInterval) {
+                clearInterval(notificationCheckInterval);
+            }
+        });
     </script>
 </body>
 </html>
