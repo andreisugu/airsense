@@ -34,7 +34,9 @@ Visit the live demo at: **[https://andreisugu.github.io/airsense/](https://andre
 
 * ✅ **Serverless & Static** - No backend infrastructure needed
 * ✅ **PWA Support** - Install as an app, works offline
+* ✅ **Dark Mode** - Toggle between light and dark themes with persistent preference
 * ✅ **Daily Pollen Notifications** - Subscribe to receive pollen alerts at your preferred time
+* ✅ **Local History Storage** - Your interaction history is saved locally in your browser
 * ✅ Full weather and pollen forecasting
 * ✅ Interactive data visualization with Chart.js
 * ✅ City search with autocomplete
@@ -43,8 +45,8 @@ Visit the live demo at: **[https://andreisugu.github.io/airsense/](https://andre
 * ✅ Risk analysis and alert system
 * ✅ Bilingual support (English/Romanian)
 * ✅ Fully responsive design
-* ✅ **Privacy-focused** - No data stored on servers
-* ❌ No user authentication or persistent history (requires Django backend)
+* ✅ **Privacy-focused** - All data stays in your browser, nothing sent to servers
+* ❌ No user authentication (requires Django backend)
 
 ### **Quick Start: Deploy Your Own**
 
@@ -123,6 +125,40 @@ Daily notifications work in modern browsers that support the Web Notifications A
 * ✅ Opera (Desktop & Android)
 
 **Note:** Notifications require the browser/tab to be running in the background. For best results, install AirSense as a PWA.
+
+### **Dark Mode**
+
+AirSense includes a **built-in dark mode** that's easy on the eyes and perfect for low-light environments!
+
+#### Features:
+* 🌙 **One-click toggle** - Switch between light and dark themes instantly
+* 💾 **Persistent preference** - Your choice is remembered across sessions using localStorage
+* 🎨 **Carefully designed** - All UI elements have been optimized for both themes
+* 🔧 **Dark Reader friendly** - Uses CSS variables for maximum compatibility with browser extensions
+
+#### How to Use:
+1. Look for the **moon icon (🌙)** in the top right header
+2. Click the button to toggle between light and dark modes
+3. Your preference is automatically saved and will be applied on your next visit
+
+The dark mode features:
+* Dark blue/navy background gradients
+* Comfortable contrast for extended reading
+* Properly styled cards, inputs, and tables
+* Consistent colors across all pages (Home, History, Profile)
+
+### **Local History Storage**
+
+Your interaction history is **automatically saved locally** in your browser! This means:
+
+* 📝 **All your submissions are stored** - Every time you share how you're feeling and get recommendations, it's saved
+* 🔒 **Complete privacy** - Your history never leaves your device - it's stored in browser localStorage
+* 📊 **Statistics tracking** - View trends and statistics about your allergy interactions
+* 🔍 **Powerful filtering** - Search and filter your history by date, allergen, or keywords
+* 📤 **Export/Import** - Download your data as JSON or import previous exports
+* 🗑️ **Full control** - Clear your history anytime from the History page
+
+**Note:** Since data is stored in browser localStorage, it's tied to your specific browser and device. If you clear your browser data or use a different device, your history won't be available. Use the export feature to backup your data!
 
 ---
 

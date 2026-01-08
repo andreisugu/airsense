@@ -1,10 +1,56 @@
+/* CSS Variables for theming */
+:root {
+    --bg-gradient-start: #e3f2fd;
+    --bg-gradient-end: #ffffff;
+    --primary-color: #2196f3;
+    --primary-dark: #1976d2;
+    --primary-light: #e3f2fd;
+    --text-color: #333;
+    --text-secondary: #666;
+    --bg-white: #ffffff;
+    --bg-card: #ffffff;
+    --border-color: rgba(33, 150, 243, 0.1);
+    --shadow-color: rgba(33, 150, 243, 0.1);
+    --input-bg: #ffffff;
+    --input-border: #e3f2fd;
+    --table-even: #f9f9f9;
+    --table-hover: #f0f0f0;
+    --header-bg: #007bff;
+    --weather-gradient-start: #2196f3;
+    --weather-gradient-end: #1976d2;
+}
+
+/* Dark Mode */
+body.dark-mode {
+    --bg-gradient-start: #1a1a2e;
+    --bg-gradient-end: #16213e;
+    --primary-color: #4a90e2;
+    --primary-dark: #3a7bc8;
+    --primary-light: #2d3e50;
+    --text-color: #e0e0e0;
+    --text-secondary: #b0b0b0;
+    --bg-white: #1e293b;
+    --bg-card: #1e293b;
+    --border-color: rgba(74, 144, 226, 0.2);
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --input-bg: #2d3e50;
+    --input-border: #3a4f63;
+    --table-even: #2a3f5f;
+    --table-hover: #3a4f63;
+    --header-bg: #1e3a5f;
+    --weather-gradient-start: #1e3a5f;
+    --weather-gradient-end: #16213e;
+}
+
 body {
-    background: linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%);
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     min-height: 100vh;
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
+    color: var(--text-color);
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 .container {
@@ -17,30 +63,33 @@ body {
 
 
 .weather-section {
-    background: white;
+    background: var(--bg-card);
     padding: 30px;
     border-radius: 15px;
-    box-shadow: 0 8px 32px rgba(33, 150, 243, 0.1);
-    border: 1px solid rgba(33, 150, 243, 0.1);
+    box-shadow: 0 8px 32px var(--shadow-color);
+    border: 1px solid var(--border-color);
     margin-top: 30px;
+    transition: background 0.3s ease, border 0.3s ease;
 }
 
 .pollen-forecast-section {
-    background: white;
+    background: var(--bg-card);
     padding: 30px;
     border-radius: 15px;
-    box-shadow: 0 8px 32px rgba(33, 150, 243, 0.1);
-    border: 1px solid rgba(33, 150, 243, 0.1);
+    box-shadow: 0 8px 32px var(--shadow-color);
+    border: 1px solid var(--border-color);
     margin-top: 40px;
+    transition: background 0.3s ease, border 0.3s ease;
 }
 
 .pollen-section, .feeling-section {
-    background: white;
+    background: var(--bg-card);
     padding: 30px;
     border-radius: 15px;
     margin: 30px 0;
-    box-shadow: 0 8px 32px rgba(33, 150, 243, 0.1);
-    border: 1px solid rgba(33, 150, 243, 0.1);
+    box-shadow: 0 8px 32px var(--shadow-color);
+    border: 1px solid var(--border-color);
+    transition: background 0.3s ease, border 0.3s ease;
 }
 
 .city-search {
@@ -65,24 +114,26 @@ body {
 
 #cityInput {
     padding: 12px 20px;
-    border: 2px solid #e3f2fd;
+    border: 2px solid var(--input-border);
     border-radius: 25px;
     width: 300px;
     font-size: 16px;
     transition: all 0.3s ease;
     box-sizing: border-box;
     -webkit-appearance: none;
+    background: var(--input-bg);
+    color: var(--text-color);
 }
 
 #cityInput:focus {
     outline: none;
-    border-color: #2196f3;
+    border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
 }
 
 #searchCity {
     padding: 12px 25px;
-    background: #2196f3;
+    background: var(--primary-color);
     color: white;
     border: none;
     border-radius: 25px;
@@ -95,7 +146,7 @@ body {
 }
 
 #searchCity:hover {
-    background: #1976d2;
+    background: var(--primary-dark);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
 }
@@ -116,14 +167,14 @@ body {
 
 h1 {
     text-align: center;
-    color: #1976d2;
+    color: var(--primary-dark);
     font-size: 2.5em;
     font-weight: 300;
     margin-bottom: 10px;
 }
 
 h2 {
-    color: #1976d2;
+    color: var(--primary-dark);
     font-weight: 500;
     margin-bottom: 20px;
     font-size: 1.5em;
@@ -131,7 +182,7 @@ h2 {
 
 .container > p {
     text-align: center;
-    color: #666;
+    color: var(--text-secondary);
     font-size: 1.1em;
     margin-bottom: 30px;
 }
@@ -438,8 +489,8 @@ h2 {
     top: 100%;
     left: 0;
     right: 0;
-    background: white;
-    border: 1px solid #ccc;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
     border-top: none;
     border-radius: 0 0 5px 5px;
     max-height: 200px;
@@ -451,11 +502,12 @@ h2 {
 .city-option {
     padding: 8px 12px;
     cursor: pointer;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-color);
 }
 
 .city-option:hover {
-    background: #f0f0f0;
+    background: var(--table-hover);
 }
 
 .city-option:last-child {
@@ -637,10 +689,11 @@ h2 {
     text-align: center;
     margin: 30px 0;
     padding: 25px;
-    background: linear-gradient(135deg, #2196f3, #1976d2);
+    background: linear-gradient(135deg, var(--weather-gradient-start), var(--weather-gradient-end));
     border-radius: 15px;
     color: white;
     position: relative;
+    transition: background 0.3s ease;
 }
 
 .temp-toggle {
@@ -712,13 +765,13 @@ h2 {
 
 .day-item {
     padding: 12px 18px;
-    background: #f8f9fa;
-    border: 2px solid #e3f2fd;
+    background: var(--input-bg);
+    border: 2px solid var(--input-border);
     border-radius: 10px;
     cursor: pointer;
     font-weight: 500;
     transition: all 0.3s ease;
-    color: #333;
+    color: var(--text-color);
     min-height: 44px;
     display: flex;
     align-items: center;
@@ -727,14 +780,14 @@ h2 {
 }
 
 .day-item:hover {
-    background: #e3f2fd;
-    border-color: #2196f3;
+    background: var(--primary-light);
+    border-color: var(--primary-color);
 }
 
 .day-item.active {
-    background: #2196f3;
+    background: var(--primary-color);
     color: white;
-    border-color: #2196f3;
+    border-color: var(--primary-color);
 }
 
 .daily-weather {
@@ -750,7 +803,7 @@ h2 {
 #hourly-table {
     width: 100%;
     border-collapse: collapse;
-    background: white;
+    background: var(--bg-card);
     border-radius: 5px;
     overflow: hidden;
 }
@@ -763,7 +816,7 @@ h2 {
 }
 
 #hourly-table th {
-    background: #007bff;
+    background: var(--header-bg);
     color: white;
     padding: 10px;
     text-align: center;
@@ -773,17 +826,18 @@ h2 {
 #hourly-table td {
     padding: 4px;
     text-align: center;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--border-color);
     font-size: 0.85em;
     line-height: 1.2;
+    color: var(--text-color);
 }
 
 #hourly-table tr:nth-child(even) {
-    background: #f9f9f9;
+    background: var(--table-even);
 }
 
 #hourly-table tr:hover {
-    background: #f0f0f0;
+    background: var(--table-hover);
 }
 
 #hourly-table tr.current-hour {
@@ -807,17 +861,18 @@ h2 {
     gap: 10px;
     cursor: pointer;
     padding: 12px 15px;
-    background: #f8f9fa;
+    background: var(--input-bg);
     border-radius: 8px;
     transition: all 0.3s ease;
     border: 2px solid transparent;
     min-height: 44px;
     touch-action: manipulation;
+    color: var(--text-color);
 }
 
 .pollen-checkboxes label:hover {
-    background: #e3f2fd;
-    border-color: #2196f3;
+    background: var(--primary-light);
+    border-color: var(--primary-color);
 }
 
 .pollen-checkboxes input[type="checkbox"] {
@@ -837,12 +892,14 @@ h2 {
     max-width: 800px;
     height: 120px;
     padding: 15px;
-    border: 2px solid #e3f2fd;
+    border: 2px solid var(--input-border);
     border-radius: 10px;
     resize: vertical;
     font-family: inherit;
     font-size: 16px;
     transition: all 0.3s ease;
+    background: var(--input-bg);
+    color: var(--text-color);
 }
 
 #feelingForm {
@@ -855,12 +912,12 @@ h2 {
 
 #feelingText:focus {
     outline: none;
-    border-color: #2196f3;
+    border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
 }
 
 #feelingForm button {
-    background: #2196f3;
+    background: var(--primary-color);
     color: white;
     padding: 12px 30px;
     border: none;
@@ -875,7 +932,7 @@ h2 {
 }
 
 #feelingForm button:hover {
-    background: #1976d2;
+    background: var(--primary-dark);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
 }
@@ -1018,7 +1075,7 @@ h2 {
 }
 
 .site-header {
-    background: #007bff;
+    background: var(--header-bg);
     color: white;
     padding: 10px 20px;
     display: flex;
@@ -1027,6 +1084,7 @@ h2 {
     margin-bottom: 15px;
     min-height: 35px;
     position: relative;
+    transition: background 0.3s ease;
 }
 
 .home-link {
@@ -1153,15 +1211,16 @@ main {
 }
 
 .site-footer {
-    background: #f8f9fa;
-    border-top: 1px solid #dee2e6;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border-color);
     padding: 20px 0;
     margin-top: 40px;
     text-align: center;
+    transition: background 0.3s ease, border 0.3s ease;
 }
 
 .footer-content a {
-    color: #6c757d;
+    color: var(--text-secondary);
     text-decoration: none;
     font-size: 0.9em;
 }
@@ -1610,4 +1669,124 @@ main {
     .history-filters > div {
         grid-template-columns: 1fr;
     }
+}
+
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    height: 42px;
+    box-sizing: border-box;
+}
+
+.dark-mode-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.dark-mode-toggle .icon {
+    font-size: 1.1em;
+}
+
+/* Pollen table in dark mode */
+body.dark-mode #pollen-hourly-table {
+    background: var(--bg-card);
+}
+
+body.dark-mode #pollen-hourly-table th {
+    background: var(--header-bg);
+}
+
+body.dark-mode #pollen-hourly-table td {
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+body.dark-mode #pollen-hourly-table tr:nth-child(even) {
+    background: var(--table-even);
+}
+
+body.dark-mode #pollen-hourly-table tr:hover {
+    background: var(--table-hover);
+}
+
+/* Weather/pollen chart controls in dark mode */
+body.dark-mode .weather-chart-controls .checkbox-item,
+body.dark-mode .pollen-type-selector .checkbox-item {
+    background: var(--input-bg);
+    color: var(--text-color);
+}
+
+body.dark-mode .weather-chart-controls .checkbox-item:hover,
+body.dark-mode .pollen-type-selector .checkbox-item:hover {
+    background: var(--primary-light);
+    border-color: var(--primary-color);
+}
+
+/* Date inputs in dark mode */
+body.dark-mode #pollenDateSelect, 
+body.dark-mode #weatherDateSelect {
+    background: var(--input-bg);
+    color: var(--text-color);
+    border: 2px solid var(--input-border);
+}
+
+body.dark-mode #pollenDateSelect:focus, 
+body.dark-mode #weatherDateSelect:focus {
+    border-color: var(--primary-color);
+}
+
+/* History and statistics cards in dark mode */
+body.dark-mode .history-section,
+body.dark-mode .statistics-section,
+body.dark-mode .recent-cities-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode .stat-card {
+    background: linear-gradient(135deg, var(--primary-light) 0%, #2d3e50 100%);
+}
+
+body.dark-mode .stat-value {
+    color: var(--primary-color);
+}
+
+body.dark-mode .stat-label {
+    color: var(--text-color);
+}
+
+body.dark-mode .recent-city-item {
+    background: var(--primary-light);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+body.dark-mode .recent-city-item:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* Dropdown menu in dark mode */
+body.dark-mode .dropdown-menu {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode .dropdown-menu a {
+    color: var(--text-color) !important;
+}
+
+body.dark-mode .dropdown-menu a:hover {
+    background: var(--table-hover) !important;
 }
