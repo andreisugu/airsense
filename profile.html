@@ -20,7 +20,7 @@
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%);
+            background: transparent;
             min-height: 100vh;
         }
 
@@ -28,23 +28,25 @@
             text-align: center;
             margin-bottom: 40px;
             padding: 30px;
-            background: white;
+            background: var(--bg-card);
             border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.1);
+            box-shadow: 0 4px 15px var(--shadow-color);
+            border: 1px solid var(--border-color);
         }
 
         .profile-header h1 {
-            color: #007bff;
+            color: var(--primary-color);
             margin: 0;
             font-size: 2.5em;
             font-weight: 300;
         }
 
         .profile-card {
-            background: white;
+            background: var(--bg-card);
             border-radius: 15px;
             padding: 30px;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.1);
+            box-shadow: 0 4px 15px var(--shadow-color);
+            border: 1px solid var(--border-color);
             margin-bottom: 20px;
         }
 
@@ -53,12 +55,12 @@
         }
 
         .section-title {
-            color: #007bff;
+            color: var(--primary-color);
             font-size: 1.3em;
             font-weight: 600;
             margin-bottom: 20px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #e3f2fd;
+            border-bottom: 2px solid var(--border-color);
         }
 
         .form-row {
@@ -75,23 +77,25 @@
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: #495057;
+            color: var(--text-color);
             font-weight: 500;
         }
 
         .form-group input, .form-group select {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid #e3f2fd;
+            border: 2px solid var(--input-border);
             border-radius: 8px;
             font-size: 1em;
             transition: border-color 0.3s;
             box-sizing: border-box;
+            background: var(--input-bg);
+            color: var(--text-color);
         }
 
         .form-group input:focus, .form-group select:focus {
             outline: none;
-            border-color: #007bff;
+            border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
         }
 
@@ -107,14 +111,14 @@
             align-items: center;
             gap: 10px;
             padding: 10px;
-            background: #f8f9fa;
+            background: var(--table-even);
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s;
         }
 
         .checkbox-item:hover {
-            background: #e3f2fd;
+            background: var(--primary-light);
         }
 
         .checkbox-item input[type="checkbox"] {
@@ -143,12 +147,12 @@
         }
 
         .btn-primary {
-            background: #007bff;
+            background: var(--primary-color);
             color: white;
         }
 
         .btn-primary:hover {
-            background: #0056b3;
+            background: var(--primary-dark);
             transform: translateY(-2px);
         }
 
