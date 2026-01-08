@@ -291,6 +291,48 @@
                     </div>
                 </form>
             </div>
+            
+            <!-- Daily Notification Settings -->
+            <div class="profile-card">
+                <div class="form-section">
+                    <h3 class="section-title">🔔 Daily Pollen Notifications</h3>
+                    <p style="color: #666; margin-bottom: 20px;">Get daily pollen alerts at your preferred time to help you plan your day.</p>
+                    
+                    <div class="form-group">
+                        <label>Notification Time:</label>
+                        <select id="notificationHour" name="notificationHour">
+                            <option value="6">6:00 AM</option>
+                            <option value="7" selected>7:00 AM</option>
+                            <option value="8">8:00 AM</option>
+                            <option value="9">9:00 AM</option>
+                            <option value="10">10:00 AM</option>
+                            <option value="11">11:00 AM</option>
+                            <option value="12">12:00 PM (Noon)</option>
+                            <option value="13">1:00 PM</option>
+                            <option value="14">2:00 PM</option>
+                            <option value="15">3:00 PM</option>
+                            <option value="16">4:00 PM</option>
+                            <option value="17">5:00 PM</option>
+                            <option value="18">6:00 PM</option>
+                            <option value="19">7:00 PM</option>
+                            <option value="20">8:00 PM</option>
+                        </select>
+                    </div>
+                    
+                    <div id="notificationStatus" style="padding: 15px; border-radius: 8px; margin: 20px 0; background: #f8f9fa; color: #666;">
+                        <span id="notificationStatusText">Notifications are not enabled</span>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button type="button" id="enableNotificationsBtn" class="btn btn-primary">
+                            🔔 Enable Daily Notifications
+                        </button>
+                        <button type="button" id="disableNotificationsBtn" class="btn btn-danger" style="display: none;">
+                            🔕 Disable Notifications
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
     
@@ -387,6 +429,293 @@
 
         // Load profile on page load
         loadProfile();
+        
+        // ===== Notification Functionality =====
+        const NOTIFICATION_STORAGE_KEY = 'airsense_notification_prefs';
+        
+        // Load notification preferences
+        function loadNotificationPreferences() {
+            const prefs = JSON.parse(localStorage.getItem(NOTIFICATION_STORAGE_KEY) || '{}');
+            
+            if (prefs.enabled) {
+                document.getElementById('notificationHour').value = prefs.hour || 7;
+                updateNotificationStatus(true, prefs.hour);
+            } else {
+                updateNotificationStatus(false);
+            }
+        }
+        
+        // Update notification status display
+        function updateNotificationStatus(enabled, hour) {
+            const statusDiv = document.getElementById('notificationStatus');
+            const statusText = document.getElementById('notificationStatusText');
+            const enableBtn = document.getElementById('enableNotificationsBtn');
+            const disableBtn = document.getElementById('disableNotificationsBtn');
+            
+            if (enabled) {
+                statusDiv.style.background = '#d4edda';
+                statusDiv.style.color = '#155724';
+                statusDiv.style.border = '1px solid #c3e6cb';
+                statusText.textContent = `✅ Daily notifications enabled for ${formatHour(hour)}`;
+                enableBtn.style.display = 'none';
+                disableBtn.style.display = 'inline-block';
+            } else {
+                statusDiv.style.background = '#f8f9fa';
+                statusDiv.style.color = '#666';
+                statusDiv.style.border = '1px solid #dee2e6';
+                statusText.textContent = '🔕 Notifications are not enabled';
+                enableBtn.style.display = 'inline-block';
+                disableBtn.style.display = 'none';
+            }
+        }
+        
+        // Format hour for display
+        function formatHour(hour) {
+            const h = parseInt(hour);
+            if (h === 0) return '12:00 AM';
+            if (h === 12) return '12:00 PM';
+            if (h < 12) return `${h}:00 AM`;
+            return `${h - 12}:00 PM`;
+        }
+        
+        // Request notification permission and enable
+        async function enableNotifications() {
+            // Check if browser supports notifications
+            if (!('Notification' in window)) {
+                alert('Your browser does not support notifications. Please use a modern browser like Chrome, Firefox, or Safari.');
+                return;
+            }
+            
+            // Request permission
+            let permission = Notification.permission;
+            
+            if (permission === 'default') {
+                permission = await Notification.requestPermission();
+            }
+            
+            if (permission === 'granted') {
+                const hour = document.getElementById('notificationHour').value;
+                
+                // Save preferences
+                const prefs = {
+                    enabled: true,
+                    hour: hour,
+                    lastCheck: new Date().toISOString()
+                };
+                localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(prefs));
+                
+                // Update UI
+                updateNotificationStatus(true, hour);
+                showMessage('Daily notifications enabled! You\'ll receive pollen alerts at ' + formatHour(hour), 'success');
+                
+                // Schedule notification check
+                scheduleNotificationCheck();
+                
+                // Show a test notification
+                showTestNotification();
+            } else if (permission === 'denied') {
+                alert('Notification permission denied. Please enable notifications in your browser settings to use this feature.');
+            }
+        }
+        
+        // Disable notifications
+        function disableNotifications() {
+            localStorage.removeItem(NOTIFICATION_STORAGE_KEY);
+            updateNotificationStatus(false);
+            showMessage('Daily notifications disabled', 'success');
+        }
+        
+        // Show a test notification
+        function showTestNotification() {
+            if (Notification.permission === 'granted') {
+                const notification = new Notification('AirSense Notifications Enabled', {
+                    body: 'You will receive daily pollen updates at your chosen time.',
+                    icon: 'core/static/core/icons/pwa-192.png',
+                    badge: 'core/static/core/icons/pwa-192.png',
+                    tag: 'airsense-test',
+                    requireInteraction: false
+                });
+                
+                notification.onclick = function() {
+                    window.focus();
+                    notification.close();
+                };
+            }
+        }
+        
+        // Schedule notification check
+        function scheduleNotificationCheck() {
+            // Check every minute if it's time to send notification
+            setInterval(checkAndSendNotification, 60000);
+            
+            // Also check immediately
+            checkAndSendNotification();
+        }
+        
+        // Check if it's time to send notification
+        async function checkAndSendNotification() {
+            const prefs = JSON.parse(localStorage.getItem(NOTIFICATION_STORAGE_KEY) || '{}');
+            
+            if (!prefs.enabled) return;
+            
+            const now = new Date();
+            const currentHour = now.getHours();
+            const notificationHour = parseInt(prefs.hour);
+            
+            // Check if it's the right hour
+            if (currentHour === notificationHour) {
+                // Check if we already sent today
+                const lastCheck = prefs.lastCheck ? new Date(prefs.lastCheck) : null;
+                const today = new Date().toDateString();
+                
+                if (!lastCheck || lastCheck.toDateString() !== today) {
+                    // Send notification
+                    await sendPollenNotification();
+                    
+                    // Update last check
+                    prefs.lastCheck = now.toISOString();
+                    localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(prefs));
+                }
+            }
+        }
+        
+        // Send pollen notification with current data
+        async function sendPollenNotification() {
+            if (Notification.permission !== 'granted') return;
+            
+            try {
+                // Get user location
+                let lat = 44.3302; // Default Craiova
+                let lon = 23.7949;
+                
+                if (navigator.geolocation) {
+                    const position = await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(resolve, reject);
+                    });
+                    lat = position.coords.latitude;
+                    lon = position.coords.longitude;
+                }
+                
+                // Fetch pollen data
+                const pollenUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&hourly=alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&forecast_hours=12`;
+                const response = await fetch(pollenUrl);
+                const pollenData = await response.json();
+                
+                // Get user allergies
+                const profile = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER_PROFILE) || '{}');
+                const allergies = profile.allergies || [];
+                
+                // Analyze pollen levels
+                const analysis = analyzePollenForNotification(pollenData, allergies);
+                
+                // Create notification
+                const notification = new Notification('AirSense Daily Pollen Update', {
+                    body: analysis.message,
+                    icon: 'core/static/core/icons/pwa-192.png',
+                    badge: 'core/static/core/icons/pwa-192.png',
+                    tag: 'airsense-daily',
+                    requireInteraction: true,
+                    data: { url: window.location.origin + '/airsense/index.html' }
+                });
+                
+                notification.onclick = function() {
+                    window.open(this.data.url, '_blank');
+                    notification.close();
+                };
+            } catch (error) {
+                console.error('Error sending pollen notification:', error);
+            }
+        }
+        
+        // Analyze pollen data for notification
+        function analyzePollenForNotification(pollenData, userAllergies) {
+            if (!pollenData.hourly) {
+                return { message: 'Unable to fetch pollen data. Please check the app for updates.', level: 'unknown' };
+            }
+            
+            const hourly = pollenData.hourly;
+            const pollenTypes = {
+                'alder': 'alder_pollen',
+                'birch': 'birch_pollen',
+                'grass': 'grass_pollen',
+                'mugwort': 'mugwort_pollen',
+                'olive': 'olive_pollen',
+                'ragweed': 'ragweed_pollen'
+            };
+            
+            let maxLevel = 0;
+            let highestPollen = '';
+            let alerts = [];
+            
+            // Check each user allergy
+            for (const allergy of userAllergies) {
+                const pollenKey = pollenTypes[allergy];
+                if (pollenKey && hourly[pollenKey]) {
+                    const values = hourly[pollenKey].slice(0, 12);
+                    const maxValue = Math.max(...values.filter(v => v !== null));
+                    
+                    if (maxValue > maxLevel) {
+                        maxLevel = maxValue;
+                        highestPollen = allergy;
+                    }
+                    
+                    const levelText = getPollenLevelText(maxValue, allergy);
+                    if (levelText !== 'Clean') {
+                        alerts.push(`${allergy.charAt(0).toUpperCase() + allergy.slice(1)}: ${levelText}`);
+                    }
+                }
+            }
+            
+            // Create message
+            let message;
+            if (alerts.length === 0) {
+                message = '✅ Good news! Pollen levels are low today for your allergies.';
+            } else if (maxLevel >= 200 || (highestPollen === 'grass' && maxLevel >= 200)) {
+                message = `⚠️ HIGH ALERT: ${alerts.join(', ')}. Stay indoors if possible!`;
+            } else if (maxLevel >= 50 || (highestPollen === 'grass' && maxLevel >= 20)) {
+                message = `⚠️ Moderate levels: ${alerts.join(', ')}. Take precautions.`;
+            } else {
+                message = `🟡 Low levels: ${alerts.join(', ')}. Be cautious outdoors.`;
+            }
+            
+            return { message, level: maxLevel };
+        }
+        
+        // Get pollen level text
+        function getPollenLevelText(value, pollenType) {
+            const val = value || 0;
+            if (val === 0) return 'Clean';
+            
+            if (pollenType === 'grass') {
+                if (val >= 200) return 'Very High';
+                if (val >= 20) return 'High';
+                if (val >= 5) return 'Medium';
+                return 'Low';
+            } else if (pollenType === 'mugwort' || pollenType === 'ragweed') {
+                if (val >= 500) return 'Very High';
+                if (val >= 50) return 'High';
+                if (val >= 10) return 'Medium';
+                return 'Low';
+            } else {
+                if (val >= 1500) return 'Very High';
+                if (val >= 90) return 'High';
+                if (val >= 15) return 'Medium';
+                return 'Low';
+            }
+        }
+        
+        // Add event listeners for notification buttons
+        document.getElementById('enableNotificationsBtn').addEventListener('click', enableNotifications);
+        document.getElementById('disableNotificationsBtn').addEventListener('click', disableNotifications);
+        
+        // Load notification preferences on page load
+        loadNotificationPreferences();
+        
+        // Start notification scheduler if enabled
+        const prefs = JSON.parse(localStorage.getItem(NOTIFICATION_STORAGE_KEY) || '{}');
+        if (prefs.enabled) {
+            scheduleNotificationCheck();
+        }
     </script>
 </body>
 </html>
