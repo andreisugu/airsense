@@ -42,6 +42,28 @@ function getWeatherDescription(code) {
     return window.translateText(baseDescription);
 }
 
+function getUVLevel(uvIndex) {
+    const val = uvIndex !== null && uvIndex !== undefined ? uvIndex : 0;
+    let text, bgColor, textColor;
+    if (val <= 2) {
+        text = window.translateText ? window.translateText('Low') : 'Low';
+        bgColor = '#4caf50'; textColor = 'white';
+    } else if (val <= 5) {
+        text = window.translateText ? window.translateText('Moderate') : 'Moderate';
+        bgColor = '#ffeb3b'; textColor = 'black';
+    } else if (val <= 7) {
+        text = window.translateText ? window.translateText('High') : 'High';
+        bgColor = '#ff9800'; textColor = 'white';
+    } else if (val <= 10) {
+        text = window.translateText ? window.translateText('Very High') : 'Very High';
+        bgColor = '#f44336'; textColor = 'white';
+    } else {
+        text = window.translateText ? window.translateText('Extreme') : 'Extreme';
+        bgColor = '#9c27b0'; textColor = 'white';
+    }
+    return `<span style="background: ${bgColor}; color: ${textColor}; padding: 2px 6px; border-radius: 3px;" title="UV Index: ${Math.round(val * 10) / 10}">${text} (${Math.round(val * 10) / 10})</span>`;
+}
+
 function updateCurrentWeather(dayIndex = 0) {
     if (!window.weatherData.current) return;
     
@@ -53,6 +75,11 @@ function updateCurrentWeather(dayIndex = 0) {
         document.getElementById('current-temp').textContent = formatTemperature(currentTemp);
         document.getElementById('current-condition').innerHTML = getWeatherDescription(window.weatherData.current.weather_code);
         document.getElementById('current-humidity').textContent = 'Humidity: ' + window.weatherData.current.relative_humidity_2m + '%';
+        const uvIndex = window.weatherData.current.uv_index !== undefined
+            ? window.weatherData.current.uv_index
+            : (window.weatherData.hourly && window.weatherData.hourly.uv_index ? window.weatherData.hourly.uv_index[0] : null);
+        const uvEl = document.getElementById('current-uv');
+        if (uvEl) uvEl.innerHTML = 'UV Index: ' + getUVLevel(uvIndex);
     } else {
         // Show average temperature for other days
         const maxTemp = window.weatherData.daily.temperature_2m_max[dayIndex];
@@ -73,6 +100,13 @@ function updateCurrentWeather(dayIndex = 0) {
         }
         const avgHumidity = count > 0 ? Math.round(totalHumidity / count) : 0;
         document.getElementById('current-humidity').textContent = 'Humidity: ' + avgHumidity + '%';
+        
+        // Show max UV index for the selected day
+        const uvMax = window.weatherData.daily && window.weatherData.daily.uv_index_max
+            ? window.weatherData.daily.uv_index_max[dayIndex]
+            : null;
+        const uvEl = document.getElementById('current-uv');
+        if (uvEl) uvEl.innerHTML = 'UV Index (max): ' + getUVLevel(uvMax);
     }
 }
 
@@ -103,6 +137,7 @@ function updateHourlyWeather(dayIndex) {
         const humidity = Math.round(window.weatherData.hourly.relative_humidity_2m[i]);
         const windSpeed = Math.round(window.weatherData.hourly.wind_speed_10m[i] || 0);
         const condition = getWeatherDescription(window.weatherData.hourly.weather_code[i]);
+        const uvIndex = window.weatherData.hourly.uv_index ? window.weatherData.hourly.uv_index[i] : null;
         
         const row = document.createElement('tr');
         if (dayIndex === 0 && hour === currentHour) {
@@ -114,6 +149,7 @@ function updateHourlyWeather(dayIndex) {
             <td>💧 ${humidity}%</td>
             <td>${windSpeed} km/h</td>
             <td>${condition}</td>
+            <td>☀️ ${getUVLevel(uvIndex)}</td>
         `;
         container.appendChild(row);
     }
@@ -130,6 +166,7 @@ function updateWeatherChart(dayIndex) {
     const temperatures = [];
     const humidity = [];
     const windSpeed = [];
+    const uvIndexValues = [];
     const datasets = [];
     
     for (let i = startHour; i < endHour && i < window.weatherData.hourly.time.length; i++) {
@@ -139,6 +176,7 @@ function updateWeatherChart(dayIndex) {
         temperatures.push(tempValue);
         humidity.push(Math.round(window.weatherData.hourly.relative_humidity_2m[i]));
         windSpeed.push(Math.round(window.weatherData.hourly.wind_speed_10m[i] || 0));
+        uvIndexValues.push(window.weatherData.hourly.uv_index ? Math.round(window.weatherData.hourly.uv_index[i] * 10) / 10 : 0);
     }
     
     if (document.getElementById('temperature-chart').checked) {
@@ -171,6 +209,18 @@ function updateWeatherChart(dayIndex) {
             backgroundColor: 'rgba(255, 193, 7, 0.1)',
             tension: 0.4,
             yAxisID: 'y'
+        });
+    }
+    
+    const uvChartCheckbox = document.getElementById('uv-chart');
+    if (uvChartCheckbox && uvChartCheckbox.checked) {
+        datasets.push({
+            label: 'UV Index',
+            data: uvIndexValues,
+            borderColor: '#ff5722',
+            backgroundColor: 'rgba(255, 87, 34, 0.1)',
+            tension: 0.4,
+            yAxisID: 'y2'
         });
     }
     
@@ -211,6 +261,19 @@ function updateWeatherChart(dayIndex) {
                     title: {
                         display: true,
                         text: 'Humidity (%)'
+                    }
+                },
+                y2: {
+                    type: 'linear',
+                    display: datasets.some(d => d.yAxisID === 'y2'),
+                    position: 'right',
+                    min: 0,
+                    grid: {
+                        drawOnChartArea: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'UV Index'
                     }
                 }
             }
@@ -411,7 +474,7 @@ function fetchPollenForDate(date, dayIndex = 0) {
 function fetchWeatherForDate(date) {
     const lat = typeof currentLat !== 'undefined' ? currentLat : 44.3302;
     const lon = typeof currentLon !== 'undefined' ? currentLon : 23.7949;
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto&start_date=${date}&end_date=${date}`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,uv_index&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,uv_index&daily=temperature_2m_max,temperature_2m_min,weather_code,uv_index_max&timezone=auto&start_date=${date}&end_date=${date}`;
     
     fetch(url)
         .then(response => response.json())
@@ -543,7 +606,7 @@ function selectCity(city) {
         });
     }
     
-    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${city.latitude}&longitude=${city.longitude}&current=temperature_2m,relative_humidity_2m,weather_code&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto&forecast_days=7`;
+    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${city.latitude}&longitude=${city.longitude}&current=temperature_2m,relative_humidity_2m,weather_code,uv_index&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,uv_index&daily=temperature_2m_max,temperature_2m_min,weather_code,uv_index_max&timezone=auto&forecast_days=7`;
     const pollenUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${city.latitude}&longitude=${city.longitude}&hourly=alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&forecast_days=7`;
     
     Promise.all([fetch(weatherUrl), fetch(pollenUrl)])
@@ -750,9 +813,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Add event listeners for weather chart checkboxes
-    const weatherCheckboxes = ['temperature-chart', 'humidity-chart', 'windspeed-chart'];
+    const weatherCheckboxes = ['temperature-chart', 'humidity-chart', 'windspeed-chart', 'uv-chart'];
     weatherCheckboxes.forEach(id => {
-        document.getElementById(id).addEventListener('change', function() {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('change', function() {
             updateWeatherChart(0);
         });
     });

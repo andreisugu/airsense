@@ -228,8 +228,18 @@ import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.
     }
     
     // Make recommendation based on sentiment and pollen data
-    function makeRecommendation(pollenLevels, sentiment, selectedPollens) {
+    function makeRecommendation(pollenLevels, sentiment, selectedPollens, weatherData) {
         const recommendations = [];
+        
+        // Determine max UV index for today from weather data
+        let uvMax = 0;
+        if (weatherData && weatherData.hourly && weatherData.hourly.uv_index) {
+            const todayUV = weatherData.hourly.uv_index.slice(0, 24).filter(v => v !== null && v !== undefined);
+            if (todayUV.length > 0) uvMax = Math.max(...todayUV);
+        }
+        const uvHigh = uvMax >= 6;
+        const uvVeryHigh = uvMax >= 8;
+        const uvExtreme = uvMax >= 11;
         
         selectedPollens.forEach(pollen => {
             const pollenKey = `${pollen}_pollen`;
@@ -264,6 +274,15 @@ import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.
                         } else {
                             tip = `${pollenName}: Feeling unwell but ${pollen} pollen is low. Should be safe outside and symptoms should get better.`;
                         }
+                    }
+                    
+                    // Add UV-specific advice
+                    if (uvExtreme) {
+                        tip += ` UV index is extreme (${Math.round(uvMax * 10) / 10}) today — avoid going outside, wear SPF 50+ sunscreen, and protect your skin.`;
+                    } else if (uvVeryHigh) {
+                        tip += ` UV index is very high (${Math.round(uvMax * 10) / 10}) today — apply SPF 50+ sunscreen and limit sun exposure between 10am–4pm.`;
+                    } else if (uvHigh) {
+                        tip += ` UV index is high (${Math.round(uvMax * 10) / 10}) today — apply sunscreen and wear a hat when going outside.`;
                     }
                     
                     recommendations.push(tip);
@@ -338,7 +357,7 @@ import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.
     }
     
     // Get alert level based on sentiment and risk analysis
-    function getAlertLevel(sentiment, riskAnalysis) {
+    function getAlertLevel(sentiment, riskAnalysis, weatherData) {
         if (!riskAnalysis || Object.keys(riskAnalysis).length === 0) {
             return null;
         }
@@ -352,60 +371,85 @@ import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.
         const pollenLowToday = todayLowCount === Object.keys(riskAnalysis).length;
         const forecastRising = tomorrowHighCount > todayHighCount;
         
+        // Determine UV level for today
+        let uvMax = 0;
+        if (weatherData && weatherData.hourly && weatherData.hourly.uv_index) {
+            const todayUV = weatherData.hourly.uv_index.slice(0, 24).filter(v => v !== null && v !== undefined);
+            if (todayUV.length > 0) uvMax = Math.max(...todayUV);
+        }
+        let uvTip = null;
+        if (uvMax >= 11) {
+            uvTip = `UV Protection: UV index is extreme (${Math.round(uvMax * 10) / 10}) — avoid going outside, use SPF 50+ sunscreen, and wear protective clothing.`;
+        } else if (uvMax >= 8) {
+            uvTip = `UV Protection: UV index is very high (${Math.round(uvMax * 10) / 10}) — apply SPF 50+ sunscreen and limit sun exposure between 10am–4pm.`;
+        } else if (uvMax >= 6) {
+            uvTip = `UV Protection: UV index is high (${Math.round(uvMax * 10) / 10}) — apply sunscreen and wear a hat when going outside.`;
+        }
+        
         if (symptomsHigh && (pollenHighToday || !pollenLowToday)) {
+            const tips = [
+                'Rescue Action: Take rescue medication and perform a full saline nasal rinse immediately.',
+                'Find Cause: Check your other triggers if the listed triggers are low.',
+                'No Outdoors: Do not go outside until your symptoms are under control. Run the HEPA filter on maximum.'
+            ];
+            if (uvTip) tips.push(uvTip);
             return {
                 level: 'Critical',
                 icon: '🚨',
                 title: 'CRITICAL THREAT: Symptoms are spiking severely!',
-                tips: [
-                    'Rescue Action: Take rescue medication and perform a full saline nasal rinse immediately.',
-                    'Find Cause: Check your other triggers if the listed triggers are low.',
-                    'No Outdoors: Do not go outside until your symptoms are under control. Run the HEPA filter on maximum.'
-                ]
+                tips
             };
         } else if (pollenHighToday && !symptomsHigh) {
+            const tips = [
+                'Stay Protected: Wear a hat and sunglasses if you go outside to shield your face and eyes.',
+                'Indoor Safety: Use the recirculate setting on your car A/C.',
+                'Change Clothes: Immediately change out of clothes worn outside to avoid tracking pollen indoors.'
+            ];
+            if (uvTip) tips.push(uvTip);
             return {
                 level: 'High Risk',
                 icon: '⚠️',
                 title: 'High Risk Today: Pollen is high, but you\'re handling it well!',
-                tips: [
-                    'Stay Protected: Wear a hat and sunglasses if you go outside to shield your face and eyes.',
-                    'Indoor Safety: Use the recirculate setting on your car A/C.',
-                    'Change Clothes: Immediately change out of clothes worn outside to avoid tracking pollen indoors.'
-                ]
+                tips
             };
         } else if (pollenLowToday && forecastRising) {
+            const tips = [
+                'Medicate Early: Start your full dose of medication today for maximum effect when the count spikes.',
+                'Clean Air: Run your HEPA filter now to purify indoor air before the threat arrives.',
+                'Avoid Laundry: Plan to dry all laundry indoors for the next three days.'
+            ];
+            if (uvTip) tips.push(uvTip);
             return {
                 level: 'Proactive',
                 icon: '🟢',
                 title: 'Prepare for Spike: Pollen is low now, but we forecast a major rise in the next 48 hours.',
-                tips: [
-                    'Medicate Early: Start your full dose of medication today for maximum effect when the count spikes.',
-                    'Clean Air: Run your HEPA filter now to purify indoor air before the threat arrives.',
-                    'Avoid Laundry: Plan to dry all laundry indoors for the next three days.'
-                ]
+                tips
             };
         } else if (pollenLowToday && !symptomsHigh) {
+            const tips = [
+                'Enjoy Outdoors: A great day for a longer walk or light exercise.',
+                'Home Prep: Change filters now while the air is clear.',
+                'Consistency: Don\'t skip your preventative nasal spray even on a good day.'
+            ];
+            if (uvTip) tips.push(uvTip);
             return {
                 level: 'Clear',
                 icon: '✅',
                 title: 'All Clear: All your triggers are very low.',
-                tips: [
-                    'Enjoy Outdoors: A great day for a longer walk or light exercise.',
-                    'Home Prep: Change filters now while the air is clear.',
-                    'Consistency: Don\'t skip your preventative nasal spray even on a good day.'
-                ]
+                tips
             };
         } else {
+            const tips = [
+                'Rinse: Use a simple saline nasal spray before bed to clear out minor irritants.',
+                'Review: Are you following your treatment plan exactly? Small lapses can cause minor symptoms.',
+                'Check Indoor: Run your dehumidifier to control mold/dust mite levels.'
+            ];
+            if (uvTip) tips.push(uvTip);
             return {
                 level: 'Maintenance',
                 icon: '🔄',
                 title: 'Stick to Routine: Low counts, but consistency is key to symptom control.',
-                tips: [
-                    'Rinse: Use a simple saline nasal spray before bed to clear out minor irritants.',
-                    'Review: Are you following your treatment plan exactly? Small lapses can cause minor symptoms.',
-                    'Check Indoor: Run your dehumidifier to control mold/dust mite levels.'
-                ]
+                tips
             };
         }
     }
@@ -445,20 +489,21 @@ import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.
                 const lat = window.currentLat || DEFAULT_LOCATION.lat;
                 const lon = window.currentLon || DEFAULT_LOCATION.lon;
                 const pollenUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&hourly=alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&forecast_days=2`;
+                const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,uv_index&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,uv_index&daily=temperature_2m_max,temperature_2m_min,weather_code,uv_index_max&timezone=auto&forecast_days=2`;
                 
-                fetch(pollenUrl)
-                    .then(response => response.json())
-                    .then(pollenData => {
+                Promise.all([fetch(pollenUrl), fetch(weatherUrl)])
+                    .then(responses => Promise.all(responses.map(r => r.json())))
+                    .then(([pollenData, weatherData]) => {
                         const pollenLevels = pollenData.hourly || {};
                         
                         // Calculate risk analysis
                         const riskAnalysis = calculateRiskAnalysis(pollenData, selectedPollens);
                         
                         // Get alert level
-                        const alertLevel = getAlertLevel(sentiment, riskAnalysis);
+                        const alertLevel = getAlertLevel(sentiment, riskAnalysis, weatherData);
                         
                         // Generate recommendations
-                        const recommendations = makeRecommendation(pollenLevels, sentiment, selectedPollens);
+                        const recommendations = makeRecommendation(pollenLevels, sentiment, selectedPollens, weatherData);
                         
                         // Display results
                         displayResults(sentiment, confidence, riskAnalysis, alertLevel, recommendations);
@@ -481,8 +526,8 @@ import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.
                         saveToHistory(interaction);
                     })
                     .catch(error => {
-                        console.error('Error fetching pollen data:', error);
-                        document.getElementById('sentimentResult').innerHTML = '<div class="sentiment-neutral">Error fetching pollen data. Please try again.</div>';
+                        console.error('Error fetching data:', error);
+                        document.getElementById('sentimentResult').innerHTML = '<div class="sentiment-neutral">Error fetching data. Please try again.</div>';
                     });
             });
         }

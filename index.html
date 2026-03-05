@@ -62,6 +62,7 @@
                     <div id="current-temp">--°C</div>
                     <div id="current-condition">Loading...</div>
                     <div id="current-humidity">Humidity: --%</div>
+                    <div id="current-uv">UV Index: --</div>
                     <div id="daily-temp">Max: --°C | Min: --°C</div>
                 </div>
                 
@@ -83,6 +84,7 @@
                                 <th data-translate="Humidity">Humidity</th>
                                 <th data-translate="Wind Speed">Wind Speed</th>
                                 <th data-translate="Condition">Condition</th>
+                                <th data-translate="UV Index">UV Index</th>
                             </tr>
                         </thead>
                         <tbody id="hourly-container"></tbody>
@@ -99,6 +101,10 @@
                         <div class="checkbox-item">
                             <input type="checkbox" id="windspeed-chart">
                             <span>💨 <span data-translate="Wind Speed">Wind Speed</span></span>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="uv-chart">
+                            <span>☀️ <span data-translate="UV Index">UV Index</span></span>
                         </div>
                     </div>
                     <div class="weather-chart">
@@ -236,7 +242,7 @@
             window.currentLon = lon;
             
             // Fetch weather and pollen data
-            const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto&forecast_days=7`;
+            const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,uv_index&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,uv_index&daily=temperature_2m_max,temperature_2m_min,weather_code,uv_index_max&timezone=auto&forecast_days=7`;
             const pollenUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&hourly=alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&forecast_days=7`;
             
             Promise.all([fetch(weatherUrl), fetch(pollenUrl)])

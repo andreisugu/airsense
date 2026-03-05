@@ -31,6 +31,7 @@
                 <div id="current-temp">--°C</div>
                 <div id="current-condition">Loading...</div>
                 <div id="current-humidity">Humidity: --%</div>
+                <div id="current-uv">UV Index: --</div>
                 <div id="daily-temp">Max: --°C | Min: --°C</div>
             </div>
             
@@ -53,6 +54,7 @@
                             <th data-translate="Humidity">Humidity</th>
                             <th data-translate="Wind Speed">Wind Speed</th>
                             <th data-translate="Condition">Condition</th>
+                            <th data-translate="UV Index">UV Index</th>
                         </tr>
                     </thead>
                     <tbody id="hourly-container"></tbody>
@@ -69,6 +71,10 @@
                     <div class="checkbox-item">
                         <input type="checkbox" id="windspeed-chart">
                         <span>💨 <span data-translate="Wind Speed">Wind Speed</span></span>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="uv-chart">
+                        <span>☀️ <span data-translate="UV Index">UV Index</span></span>
                     </div>
                 </div>
                 <div class="weather-chart">
