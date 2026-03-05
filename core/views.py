@@ -35,7 +35,7 @@ def home(request):
     lat, lon = get_location_from_ip(ip)
     
     # Get current weather
-    weather_url = f'https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,weather_code&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto&forecast_days=7'
+    weather_url = f'https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,weather_code,uv_index&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,uv_index&daily=temperature_2m_max,temperature_2m_min,weather_code,uv_index_max&timezone=auto&forecast_days=7'
     
     try:
         weather_response = requests.get(weather_url)
@@ -104,7 +104,7 @@ def get_weather_data(lat=None, lon=None, request=None):
         else:
             return None
     
-    weather_url = f'https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,weather_code&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto&forecast_days=7'
+    weather_url = f'https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,weather_code,uv_index&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,uv_index&daily=temperature_2m_max,temperature_2m_min,weather_code,uv_index_max&timezone=auto&forecast_days=7'
     
     try:
         response = requests.get(weather_url)
@@ -169,6 +169,7 @@ def make_recommendation(weather_data, pollen_levels, sentiment, selected_pollens
     will_rain = False
     is_sunny = False
     is_windy = False
+    uv_max = 0
     
     if weather_data and 'hourly' in weather_data:
         # Check next 12 hours for weather patterns
@@ -180,6 +181,15 @@ def make_recommendation(weather_data, pollen_levels, sentiment, selected_pollens
                 is_sunny = True
             if code in windy_codes:
                 is_windy = True
+        # Get max UV index for today
+        uv_values = weather_data['hourly'].get('uv_index', [])
+        today_uv = [v for v in uv_values[:24] if v is not None]
+        if today_uv:
+            uv_max = max(today_uv)
+    
+    uv_high = uv_max >= 6
+    uv_very_high = uv_max >= 8
+    uv_extreme = uv_max >= 11
     
     recommendations = []
     
@@ -222,11 +232,19 @@ def make_recommendation(weather_data, pollen_levels, sentiment, selected_pollens
                 if is_sunny and (pollen_high or pollen_medium):
                     tip += " It will be sunny today, keep your windows closed."
                 
+                # Add UV-specific advice
+                if uv_extreme:
+                    tip += f" UV index is extreme ({round(uv_max, 1)}) today — avoid going outside, wear SPF 50+ sunscreen, and protect your skin."
+                elif uv_very_high:
+                    tip += f" UV index is very high ({round(uv_max, 1)}) today — wear sunscreen and limit sun exposure, especially between 10am–4pm."
+                elif uv_high:
+                    tip += f" UV index is high ({round(uv_max, 1)}) today — apply sunscreen and wear protective clothing if going outside."
+                
                 recommendations.append(tip)
     
     return recommendations
 
-def get_alert_level(sentiment, risk_analysis):
+def get_alert_level(sentiment, risk_analysis, weather_data=None):
     if not risk_analysis:
         return None
     
@@ -240,60 +258,90 @@ def get_alert_level(sentiment, risk_analysis):
     pollen_low_today = today_low_count == len(risk_analysis)
     forecast_rising = tomorrow_high_count > today_high_count
     
+    # Determine UV level for today
+    uv_max = 0
+    if weather_data and 'hourly' in weather_data:
+        uv_values = weather_data['hourly'].get('uv_index', [])
+        today_uv = [v for v in uv_values[:24] if v is not None]
+        if today_uv:
+            uv_max = max(today_uv)
+    uv_tip = None
+    if uv_max >= 11:
+        uv_tip = f'UV Protection: UV index is extreme ({round(uv_max, 1)}) — avoid going outside, use SPF 50+ sunscreen, and wear protective clothing.'
+    elif uv_max >= 8:
+        uv_tip = f'UV Protection: UV index is very high ({round(uv_max, 1)}) — apply SPF 50+ sunscreen and limit sun exposure between 10am–4pm.'
+    elif uv_max >= 6:
+        uv_tip = f'UV Protection: UV index is high ({round(uv_max, 1)}) — apply sunscreen and wear a hat when going outside.'
+    
     if symptoms_high and (pollen_high_today or not pollen_low_today):
+        tips = [
+            'Rescue Action: Take rescue medication and perform a full saline nasal rinse immediately.',
+            'Find Cause: Check your other triggers if the listed triggers are low.',
+            'No Outdoors: Do not go outside until your symptoms are under control. Run the HEPA filter on maximum.'
+        ]
+        if uv_tip:
+            tips.append(uv_tip)
         return {
             'level': 'Critical',
             'icon': '🚨',
             'title': 'CRITICAL THREAT: Symptoms are spiking severely!',
-            'tips': [
-                'Rescue Action: Take rescue medication and perform a full saline nasal rinse immediately.',
-                'Find Cause: Check your other triggers if the listed triggers are low.',
-                'No Outdoors: Do not go outside until your symptoms are under control. Run the HEPA filter on maximum.'
-            ]
+            'tips': tips
         }
     elif pollen_high_today and not symptoms_high:
+        tips = [
+            'Stay Protected: Wear a hat and sunglasses if you go outside to shield your face and eyes.',
+            'Indoor Safety: Use the recirculate setting on your car A/C.',
+            'Change Clothes: Immediately change out of clothes worn outside to avoid tracking pollen indoors.'
+        ]
+        if uv_tip:
+            tips.append(uv_tip)
         return {
             'level': 'High Risk',
             'icon': '⚠️',
             'title': 'High Risk Today: Pollen is high, but you\'re handling it well!',
-            'tips': [
-                'Stay Protected: Wear a hat and sunglasses if you go outside to shield your face and eyes.',
-                'Indoor Safety: Use the recirculate setting on your car A/C.',
-                'Change Clothes: Immediately change out of clothes worn outside to avoid tracking pollen indoors.'
-            ]
+            'tips': tips
         }
     elif pollen_low_today and forecast_rising:
+        tips = [
+            'Medicate Early: Start your full dose of medication today for maximum effect when the count spikes.',
+            'Clean Air: Run your HEPA filter now to purify indoor air before the threat arrives.',
+            'Avoid Laundry: Plan to dry all laundry indoors for the next three days.'
+        ]
+        if uv_tip:
+            tips.append(uv_tip)
         return {
             'level': 'Proactive',
             'icon': '🟢',
             'title': 'Prepare for Spike: Pollen is low now, but we forecast a major rise in the next 48 hours.',
-            'tips': [
-                'Medicate Early: Start your full dose of medication today for maximum effect when the count spikes.',
-                'Clean Air: Run your HEPA filter now to purify indoor air before the threat arrives.',
-                'Avoid Laundry: Plan to dry all laundry indoors for the next three days.'
-            ]
+            'tips': tips
         }
     elif pollen_low_today and not symptoms_high:
+        tips = [
+            'Enjoy Outdoors: A great day for a longer walk or light exercise.',
+            'Home Prep: Change filters now while the air is clear.',
+            'Consistency: Don\'t skip your preventative nasal spray even on a good day.'
+        ]
+        if uv_tip:
+            tips.append(uv_tip)
         return {
             'level': 'Clear',
             'icon': '✅',
             'title': 'All Clear: All your triggers are very low.',
-            'tips': [
-                'Enjoy Outdoors: A great day for a longer walk or light exercise.',
-                'Home Prep: Change filters now while the air is clear.',
-                'Consistency: Don\'t skip your preventative nasal spray even on a good day.'
-            ]
+            'tips': tips
         }
     else:
+        tips = [
+            'Rinse: Use a simple saline nasal spray before bed to clear out minor irritants.',
+            'Review: Are you following your treatment plan exactly? Small lapses can cause minor symptoms.',
+            'Check Indoor: Run your dehumidifier to control mold/dust mite levels.'
+        ]
+        if uv_tip:
+            tips.append(uv_tip)
         return {
             'level': 'Maintenance',
             'icon': '🔄',
             'title': 'Stick to Routine: Low counts, but consistency is key to symptom control.',
-            'tips': [
-                'Rinse: Use a simple saline nasal spray before bed to clear out minor irritants.',
-                'Review: Are you following your treatment plan exactly? Small lapses can cause minor symptoms.',
-                'Check Indoor: Run your dehumidifier to control mold/dust mite levels.'
-            ]
+            'tips': tips
         }
 
 def create_short_analysis(risk_analysis):
@@ -463,7 +511,7 @@ def get_rec_data(request):
                 risk_analysis = calculate_risk_analysis(pollen_data, selected_pollens)
                 
                 # Get alert level
-                alert_level = get_alert_level(sentiment_label, risk_analysis)
+                alert_level = get_alert_level(sentiment_label, risk_analysis, weather_data)
                 
                 # Generate recommendations
                 recommendations = make_recommendation(weather_data, pollen_levels, sentiment_label, selected_pollens)

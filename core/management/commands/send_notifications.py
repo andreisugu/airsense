@@ -26,7 +26,10 @@ class Command(BaseCommand):
                 pollen_data = self.get_pollen_forecast(44.3302, 23.7949)  # Default location
                 analysis = self.analyze_pollen_data(pollen_data, user.allergies)
                 
-                message = self.create_notification_message(analysis, user.full_name)
+                # Get UV data for today
+                uv_data = self.get_uv_forecast(44.3302, 23.7949)
+                
+                message = self.create_notification_message(analysis, user.full_name, uv_data)
                 
                 # Send notifications based on user preferences
                 if user.email_reminders:
@@ -50,6 +53,22 @@ class Command(BaseCommand):
             return response.json()
         except:
             return {}
+
+    def get_uv_forecast(self, lat, lon):
+        url = f'https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly=uv_index&daily=uv_index_max&timezone=auto&forecast_days=1'
+        try:
+            response = requests.get(url)
+            data = response.json()
+            uv_max = None
+            if data.get('daily') and data['daily'].get('uv_index_max'):
+                uv_max = data['daily']['uv_index_max'][0]
+            elif data.get('hourly') and data['hourly'].get('uv_index'):
+                today_uv = [v for v in data['hourly']['uv_index'] if v is not None]
+                if today_uv:
+                    uv_max = max(today_uv)
+            return {'uv_index_max': uv_max}
+        except:
+            return {'uv_index_max': None}
 
     def get_pollen_level_text(self, value, pollen_type):
         """Convert pollen value to text level matching home page"""
@@ -112,7 +131,7 @@ class Command(BaseCommand):
         
         return {'max_levels': max_levels, 'user_alerts': user_alerts, 'highest_level': highest_level}
 
-    def create_notification_message(self, analysis, user_name):
+    def create_notification_message(self, analysis, user_name, uv_data=None):
         message = f"Hello {user_name}!\n\nPollen Forecast for the next 6 hours:\n\n"
         
         # Add max levels
@@ -123,6 +142,26 @@ class Command(BaseCommand):
                 pollen_name = pollen_type.replace('_pollen', '')
                 level_text = self.get_pollen_level_text(level, pollen_name)
                 message += f"• {clean_name}: {level_text} ({level} grains/m³)\n"
+        
+        # Add UV index information
+        if uv_data and uv_data.get('uv_index_max') is not None:
+            uv_max = uv_data['uv_index_max']
+            if uv_max >= 11:
+                uv_label = f'Extreme ({uv_max})'
+                uv_advice = '🟣 EXTREME UV: Avoid going outside, use SPF 50+ sunscreen, and wear protective clothing.'
+            elif uv_max >= 8:
+                uv_label = f'Very High ({uv_max})'
+                uv_advice = '🔴 VERY HIGH UV: Apply SPF 50+ sunscreen and limit sun exposure between 10am–4pm.'
+            elif uv_max >= 6:
+                uv_label = f'High ({uv_max})'
+                uv_advice = '🟠 HIGH UV: Apply sunscreen and wear a hat when going outside.'
+            elif uv_max >= 3:
+                uv_label = f'Moderate ({uv_max})'
+                uv_advice = '🟡 MODERATE UV: Sunscreen recommended for prolonged outdoor activity.'
+            else:
+                uv_label = f'Low ({uv_max})'
+                uv_advice = '🟢 LOW UV: No special precautions needed.'
+            message += f"\n☀️ UV Index Today: {uv_label}\n{uv_advice}\n"
         
         # Add user-specific alerts with custom message based on highest level
         if analysis['user_alerts']:
