@@ -2,3 +2,4 @@ Django
 Torch
 transformers
 pytz
+requests
