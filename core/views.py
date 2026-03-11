@@ -5,7 +5,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 import requests
 import json
-from transformers import pipeline
 from .forms import RegisterForm
 from .models import User, UserInteraction
 
@@ -440,6 +439,7 @@ def analyze_sentiment(feeling_text):
     global sentiment_pipeline
     try:
         if sentiment_pipeline is None:
+            from transformers import pipeline
             sentiment_pipeline = pipeline("sentiment-analysis", model="distilbert/distilbert-base-uncased-finetuned-sst-2-english")
         result = sentiment_pipeline(feeling_text)[0]
         return result['label'], result['score']
